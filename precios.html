@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>App de Precios | Syngenta PY</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#e8e8e8}#root{max-width:430px;margin:0 auto;min-height:100vh;background:#f5f5f5;position:relative;border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0}input,select,textarea{font-family:inherit}::-webkit-scrollbar{display:none}.fade-in{animation:fadeIn .3s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useRef,useEffect}=React;
+
+/* ══════════════════════════════════════
+   DATOS
+   ══════════════════════════════════════ */
+const COMP_ALL=[
+  {n:"Cripton Xpro",l:"Fungicidas",e:"Bayer"},
+  {n:"Cripton Supra",l:"Fungicidas",e:"Bayer"},
+  {n:"Kejano",l:"Fungicidas",e:"BASF"},
+  {n:"Wetter",l:"Fungicidas",e:"BASF"},
+  {n:"Kenko",l:"Fungicidas",e:"BASF"},
+  {n:"Planity",l:"Fungicidas",e:"BASF"},
+  {n:"Vessarya",l:"Fungicidas",e:"Corteva"},
+  {n:"Viovan",l:"Fungicidas",e:"Corteva"},
+  {n:"Ativum",l:"Fungicidas",e:"BASF"},
+  {n:"Priaxor",l:"Fungicidas",e:"BASF"},
+  {n:"Opera",l:"Fungicidas",e:"BASF"},
+  {n:"Palyvar",l:"Fungicidas",e:"Corteva"},
+  {n:"Sphere Max",l:"Fungicidas",e:"Bayer"},
+  {n:"Optimun X3",l:"Fungicidas",e:"Bayer"},
+  {n:"Contact",l:"Fungicidas",e:"Genérico"},
+  {n:"Buster Dúo",l:"Fungicidas",e:"Genérico"},
+  {n:"Clorotalonil",l:"Fungicidas",e:"Genérico"},
+  {n:"Tiametoxam",l:"Fungicidas",e:"Genérico"},
+  {n:"Ciantramix",l:"Fungicidas",e:"Corteva"},
+  {n:"Roundup Top",l:"Herbicidas",e:"Bayer"},
+  {n:"Roundup Control Max",l:"Herbicidas",e:"Bayer"},
+  {n:"Roundup",l:"Herbicidas",e:"Bayer"},
+  {n:"Texaro",l:"Herbicidas",e:"BASF"},
+  {n:"Heat",l:"Herbicidas",e:"BASF"},
+  {n:"Authority",l:"Herbicidas",e:"FMC"},
+  {n:"Aurora",l:"Herbicidas",e:"FMC"},
+  {n:"Pixxaro",l:"Herbicidas",e:"Corteva"},
+  {n:"Calamity",l:"Herbicidas",e:"Genérico"},
+  {n:"Acefato",l:"Insecticidas",e:"Genérico"},
+  {n:"Metomil",l:"Insecticidas",e:"Genérico"},
+  {n:"Tmx + Lambda",l:"Insecticidas",e:"Genérico"},
+  {n:"Tmx + Bifentrin",l:"Insecticidas",e:"Genérico"},
+  {n:"Biológicos",l:"Insecticidas",e:"Varios"},
+  {n:"TrichodermilFS",l:"Insecticidas",e:"Koppert"},
+  {n:"Veraneio",l:"Insecticidas",e:"BASF"},
+  {n:"Packs Diamida",l:"Seedcare",e:"Corteva"},
+  {n:"Clorantra Solo",l:"Seedcare",e:"Corteva"},
+  {n:"Dermacor",l:"Seedcare",e:"Corteva"},
+  {n:"Cinatra Solo",l:"Seedcare",e:"Corteva"},
+  {n:"Cinatra Pack",l:"Seedcare",e:"Corteva"},
+  {n:"Sforzzo",l:"Seedcare",e:"BASF"},
+  {n:"Sforzzo Duo",l:"Seedcare",e:"BASF"},
+  {n:"Ciantra Pantera Negra",l:"Seedcare",e:"Corteva"},
+  {n:"Yunta",l:"Seedcare",e:"Bayer"},
+  {n:"Top Box 4",l:"Seedcare",e:"Corteva"},
+];
+
+const SYN_ALL=[
+  {n:"PRIME",l:"FUN"},{n:"TILT",l:"FUN"},{n:"PRIORI XTRA",l:"FUN"},{n:"AMISTAR TOP",l:"FUN"},{n:"MAZEN",l:"FUN"},{n:"MAZEN FORTE",l:"FUN"},{n:"CERATAVO",l:"FUN"},{n:"CERATAVO FORTE",l:"FUN"},{n:"PRIORI XTRA GOLD",l:"FUN"},{n:"SCORE",l:"FUN"},{n:"SCORE FLEXI",l:"FUN"},{n:"CYPRESS",l:"FUN"},{n:"VALIVIS",l:"FUN"},{n:"OCHIMA",l:"FUN"},{n:"QUANTIS",l:"FUN"},{n:"BRAVONIL",l:"FUN"},{n:"BRAVONIL TOP",l:"FUN"},{n:"TRINITY",l:"FUN"},{n:"SEEKER",l:"FUN"},{n:"SYMETRY",l:"FUN"},{n:"SPYRALE",l:"FUN"},{n:"MIRAVIS FORTE",l:"FUN"},{n:"ALTO ELITE",l:"FUN"},
+  {n:"CRUISER",l:"SC"},{n:"FORTENZA",l:"SC"},{n:"FORTENZA MAXX",l:"SC"},{n:"MAXIM XL",l:"SC"},{n:"MAXIM ADVANCED",l:"SC"},{n:"VIBRANCE",l:"SC"},{n:"VIBRANCE MAXX",l:"SC"},{n:"VIBRANCE INTEGRAL",l:"SC"},{n:"SPECTRO",l:"SC"},{n:"EKEY TOP",l:"SC"},{n:"CERTICOR",l:"SC"},{n:"CURANZA",l:"SC"},{n:"VICTRATO",l:"SC"},
+  {n:"KARATE ZEON",l:"INS"},{n:"ENGEO",l:"INS"},{n:"AMPLIGO",l:"INS"},{n:"MATCH",l:"INS"},{n:"PROCLAIM FIT",l:"INS"},{n:"ACTARA 75",l:"INS"},{n:"ENDIGO",l:"INS"},{n:"CAREXO",l:"INS"},{n:"FENSORAX",l:"INS"},{n:"VERDAVIS",l:"INS"},
+  {n:"FLEX",l:"HERB"},{n:"DUAL GOLD",l:"HERB"},{n:"GESAPRIM",l:"HERB"},{n:"TOPIK",l:"HERB"},{n:"TRAXOS PLUS",l:"HERB"},{n:"EDDUS",l:"HERB"},{n:"TRASPECT",l:"HERB"}
+];
+
+const DEPTOS={
+  "Alto Paraná":["Santa Rita","Naranjal","Minga Guazú","Ciudad del Este","Hernandarias","San Alberto","Mbaracayú"],
+  "Itapúa":["Encarnación","Hohenau","Capitán Miranda","Bella Vista","Obligado","Pirapó","Trinidad","Colonias Unidas"],
+  "Caaguazú":["Coronel Oviedo","Caaguazú","Repatriación","3 de Febrero"]
+};
+
+const ACCESOS=["Reventa","Distribuidor","Barter"];
+const UMS=["Litro","Ha","Pack"];
+
+const REPORTES=[
+  {id:1,prod:"Cripton Xpro",emp:"Bayer",linea:"Fungicidas",acceso:"Distribuidor",depto:"Alto Paraná",dist:"Santa Rita",um:"Litro",dosis:"0.3",precio:42,fecha:"16/05/2026",estado:"validado"},
+  {id:2,prod:"Vessarya",emp:"Corteva",linea:"Fungicidas",acceso:"Reventa",depto:"Itapúa",dist:"Hohenau",um:"Litro",dosis:"0.4",precio:38,fecha:"15/05/2026",estado:"validado"},
+  {id:3,prod:"Roundup Top",emp:"Bayer",linea:"Herbicidas",acceso:"Distribuidor",depto:"Alto Paraná",dist:"Naranjal",um:"Litro",dosis:"2",precio:8.5,fecha:"14/05/2026",estado:"pendiente"},
+  {id:4,prod:"Opera",emp:"BASF",linea:"Fungicidas",acceso:"Barter",depto:"Caaguazú",dist:"Coronel Oviedo",um:"Litro",dosis:"0.5",precio:35,fecha:"13/05/2026",estado:"validado"},
+  {id:5,prod:"Dermacor",emp:"Corteva",linea:"Seedcare",acceso:"Distribuidor",depto:"Itapúa",dist:"Bella Vista",um:"Litro",dosis:"0.02",precio:120,fecha:"12/05/2026",estado:"pendiente"},
+  {id:6,prod:"Acefato",emp:"Genérico",linea:"Insecticidas",acceso:"Reventa",depto:"Alto Paraná",dist:"Minga Guazú",um:"Ha",dosis:"",precio:4.2,fecha:"11/05/2026",estado:"validado"},
+  {id:7,prod:"Priaxor",emp:"BASF",linea:"Fungicidas",acceso:"Distribuidor",depto:"Itapúa",dist:"Encarnación",um:"Litro",dosis:"0.3",precio:48,fecha:"10/05/2026",estado:"validado"},
+  {id:8,prod:"Cinatra Pack",emp:"Corteva",linea:"Seedcare",acceso:"Distribuidor",depto:"Alto Paraná",dist:"Santa Rita",um:"Pack",dosis:"",precio:95,fecha:"09/05/2026",estado:"validado"},
+];
+
+const MAPA_DATA=[
+  {prod:"Cripton Xpro",emp:"Bayer",prom:43,min:38,max:48,rep:12},
+  {prod:"Vessarya",emp:"Corteva",prom:37,min:34,max:41,rep:8},
+  {prod:"Opera",emp:"BASF",prom:34,min:30,max:38,rep:15},
+  {prod:"Roundup Top",emp:"Bayer",prom:8.2,min:7.5,max:9,rep:22},
+  {prod:"Priaxor",emp:"BASF",prom:47,min:44,max:52,rep:6},
+  {prod:"Dermacor",emp:"Corteva",prom:118,min:110,max:125,rep:4},
+  {prod:"Acefato",emp:"Genérico",prom:4.5,min:3.8,max:5.2,rep:18},
+  {prod:"Sphere Max",emp:"Bayer",prom:55,min:50,max:60,rep:3},
+  {prod:"Cinatra Pack",emp:"Corteva",prom:92,min:88,max:98,rep:7},
+  {prod:"Kejano",emp:"BASF",prom:29,min:26,max:33,rep:9},
+];
+
+/* ══════════════════════════════════════
+   STYLES
+   ══════════════════════════════════════ */
+const S={
+  inp:{width:"100%",padding:"12px 14px",borderRadius:10,border:"1px solid #e0e0e0",fontSize:14,outline:"none",background:"#fff",boxSizing:"border-box"},
+  ch:a=>({padding:"8px 14px",borderRadius:20,border:a?"1px solid #36398E":"1px solid #e0e0e0",background:a?"#EDE7F6":"#fff",cursor:"pointer",fontSize:13,color:a?"#36398E":"#555",fontWeight:a?600:400}),
+  hd:{background:"linear-gradient(135deg, #36398E 0%, #5C5FBF 100%)",paddingTop:52,paddingBottom:14,paddingLeft:20,paddingRight:20},
+  ht:{fontSize:20,fontWeight:700,color:"#fff"},
+  hb:{background:"none",border:"none",color:"rgba(255,255,255,.85)",fontSize:22,cursor:"pointer",marginBottom:6,padding:0},
+  dm:{textAlign:"center",padding:20,color:"#bbb",fontSize:11},
+  gb:{width:"100%",background:"#36398E",color:"#fff",border:"none",borderRadius:12,padding:14,fontWeight:700,fontSize:14,cursor:"pointer"},
+  es:c=>({display:"inline-block",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,border:"1px solid "+c,color:c,background:c+"15"}),
+  tb:a=>({flex:1,padding:10,borderRadius:10,border:a?"1px solid #36398E":"1px solid #e0e0e0",textAlign:"center",background:a?"#EDE7F6":"#fff",cursor:"pointer",fontSize:13,fontWeight:600,color:a?"#36398E":"#999"}),
+  sec:{marginBottom:16},
+  slab:{fontSize:13,fontWeight:700,color:"#1a1a1a",marginBottom:8,display:"flex",alignItems:"center",gap:8},
+  snum:{width:22,height:22,borderRadius:11,background:"#36398E",color:"#fff",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700},
+  sel:{background:"#fff",borderRadius:10,padding:"12px 14px",border:"1px solid #36398E",display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"},
+};
+
+function td(){return new Date().toLocaleDateString("es-PY",{weekday:"long",day:"numeric",month:"long"})}
+
+/* ═══════════════════════════════════════
+   HOME
+   ═══════════════════════════════════════ */
+function Home({go}){
+  const items=[
+    {l:"Reportar Precio",s:"Captura rápida en una pantalla",i:"💰",c:"#F59E0B",r:"rep"},
+    {l:"Mis Reportes",s:"Historial y estado de validación",i:"📋",c:"#3B82F6",r:"hist"},
+    {l:"Calculadora Costo/Ha",s:"Competencia + Syngenta",i:"🧮",c:"#00A651",r:"calc"},
+    {l:"Mapa de Precios",s:"Tabla, mapa y timeline",i:"📊",c:"#8B5CF6",r:"mapa"}
+  ];
+  return <div style={{minHeight:"100vh",background:"#f5f5f5",paddingBottom:40}}>
+    <div style={{padding:20,paddingTop:16}}>
+      <div style={{background:"linear-gradient(135deg, #36398E 0%, #5C5FBF 100%)",margin:"-16px -20px 20px",padding:"20px 20px 16px",borderRadius:"0 0 20px 20px"}}>
+        <div style={{fontSize:22,fontWeight:700,color:"#fff"}}>Precios 💰</div>
+        <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:4,textTransform:"capitalize"}}>{td()}</div>
+        <div style={{display:"flex",gap:8,marginTop:12}}>
+          {[["127","Reportes totales"],["8","Esta semana"],["5","Pendientes"]].map(([v,l])=>
+            <div key={l} style={{flex:1,background:"rgba(255,255,255,.15)",borderRadius:10,padding:10,textAlign:"center"}}>
+              <div style={{fontSize:18,fontWeight:700,color:"#fff"}}>{v}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,.7)"}}>{l}</div>
+            </div>
+          )}
+        </div>
+      </div>
+      {items.map(m=>
+        <button key={m.r} onClick={()=>go(m.r)} style={{background:"#fff",borderRadius:14,padding:14,display:"flex",flexDirection:"row",alignItems:"center",marginBottom:10,boxShadow:"0 1px 4px rgba(0,0,0,.06)",cursor:"pointer",border:"none",width:"100%",textAlign:"left"}}>
+          <div style={{width:46,height:46,borderRadius:13,display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,fontSize:22,background:m.c+"18"}}>{m.i}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:15,fontWeight:700,color:"#1a1a1a"}}>{m.l}</div>
+            <div style={{fontSize:12,color:"#888",marginTop:2}}>{m.s}</div>
+          </div>
+          <span style={{color:"#ccc",fontSize:16}}>›</span>
+        </button>
+      )}
+      <div style={S.dm}>App de Precios v2 — Demo — Syngenta Paraguay</div>
+    </div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   REPORTAR PRECIO (single screen, progressive)
+   ═══════════════════════════════════════ */
+function Rep({back}){
+  const[prod,sp]=useState(null);
+  const[psq,sps]=useState("");
+  const[showList,ssl]=useState(false);
+  const[acceso,sac]=useState("");
+  const[depto,sde]=useState("");
+  const[dist,sdi]=useState("");
+  const[um,sum]=useState("");
+  const[dosis,sdo]=useState("");
+  const[precio,spc]=useState("");
+  const[ok,sok]=useState(false);
+  const bottomRef=useRef(null);
+
+  useEffect(()=>{if(bottomRef.current)bottomRef.current.scrollIntoView({behavior:"smooth"})},[prod,acceso,depto,dist,um,precio]);
+
+  const filtered=psq.length>0?COMP_ALL.filter(p=>p.n.toLowerCase().includes(psq.toLowerCase())):COMP_ALL;
+  const distritos=depto?DEPTOS[depto]||[]:[];
+  const costoHa=precio&&dosis?(parseFloat(precio)*parseFloat(dosis)).toFixed(2):"";
+
+  if(ok) return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",padding:40,textAlign:"center",background:"#f5f5f5"}}>
+    <div style={{fontSize:60,marginBottom:20}}>✅</div>
+    <div style={{fontSize:20,fontWeight:700,marginBottom:8}}>Precio reportado</div>
+    <div style={{fontSize:14,color:"#888",marginBottom:6}}><strong>{prod.n}</strong> ({prod.e})</div>
+    <div style={{fontSize:18,fontWeight:700,color:"#36398E",marginBottom:4}}>USD {precio} / {um}</div>
+    <div style={{fontSize:13,color:"#999",marginBottom:24}}>{acceso} · {dist}, {depto}</div>
+    <button onClick={()=>{sp(null);sac("");sde("");sdi("");sum("");sdo("");spc("");sok(false)}} style={{background:"#36398E",color:"#fff",border:"none",borderRadius:12,padding:"14px 24px",fontWeight:700,fontSize:14,cursor:"pointer",marginBottom:10}}>+ Reportar otro</button>
+    <button onClick={back} style={{background:"#fff",color:"#36398E",border:"1px solid #36398E",borderRadius:12,padding:"14px 24px",fontWeight:700,fontSize:14,cursor:"pointer"}}>Volver al inicio</button>
+  </div>;
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={S.ht}>Reportar Precio 💰</div></div>
+    <div style={{padding:16}}>
+
+      {/* 1. PRODUCTO */}
+      <div style={S.sec}>
+        <div style={S.slab}><span style={S.snum}>1</span> Producto de la competencia</div>
+        {prod
+          ? <div style={S.sel} onClick={()=>{sp(null);sps("")}}>
+              <div><div style={{fontSize:15,fontWeight:600}}>{prod.n}</div><div style={{fontSize:12,color:"#777",marginTop:2}}>{prod.e} · {prod.l}</div></div>
+              <span style={{color:"#36398E",fontWeight:600,fontSize:13}}>Cambiar</span>
+            </div>
+          : <div>
+              <input style={S.inp} placeholder="Buscar producto competencia..." value={psq} onChange={e=>{sps(e.target.value);ssl(true)}} onFocus={()=>ssl(true)}/>
+              {ssl && <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",maxHeight:250,overflowY:"auto",marginTop:4}}>
+                {filtered.slice(0,15).map((p,i)=>
+                  <div key={p.n+i} onClick={()=>{sp(p);sps("");ssl(false)}}
+                    style={{padding:"12px 14px",borderBottom:"1px solid #f0f0f0",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <div><div style={{fontSize:14,fontWeight:600,color:"#1a1a1a"}}>{p.n}</div><div style={{fontSize:11,color:"#999"}}>{p.e} · {p.l}</div></div>
+                  </div>
+                )}
+                {filtered.length===0 && <div style={{padding:16,textAlign:"center",color:"#999",fontSize:13}}>Sin resultados</div>}
+              </div>}
+            </div>
+        }
+      </div>
+
+      {/* 2. ACCESO */}
+      {prod && <div className="fade-in" style={S.sec}>
+        <div style={S.slab}><span style={S.snum}>2</span> Acceso de mercado</div>
+        <div style={{display:"flex",gap:8}}>
+          {ACCESOS.map(a=>
+            <button key={a} style={S.ch(acceso===a)} onClick={()=>sac(a)}>{a}</button>
+          )}
+        </div>
+      </div>}
+
+      {/* 3. UBICACIÓN */}
+      {acceso && <div className="fade-in" style={S.sec}>
+        <div style={S.slab}><span style={S.snum}>3</span> Ubicación</div>
+        <div style={{fontSize:12,color:"#999",marginBottom:8}}>Departamento</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>
+          {Object.keys(DEPTOS).map(d=>
+            <button key={d} style={S.ch(depto===d)} onClick={()=>{sde(d);sdi("")}}>{d}</button>
+          )}
+        </div>
+        {depto && <>
+          <div style={{fontSize:12,color:"#999",marginBottom:8}}>Distrito</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+            {distritos.map(d=>
+              <button key={d} style={S.ch(dist===d)} onClick={()=>sdi(d)}>{d}</button>
+            )}
+          </div>
+        </>}
+      </div>}
+
+      {/* 4. UM + DOSIS */}
+      {dist && <div className="fade-in" style={S.sec}>
+        <div style={S.slab}><span style={S.snum}>4</span> Unidad de medida</div>
+        <div style={{display:"flex",gap:8,marginBottom:14}}>
+          {UMS.map(u=>
+            <button key={u} style={S.ch(um===u)} onClick={()=>sum(u)}>{u}</button>
+          )}
+        </div>
+        {um && <>
+          <div style={{fontSize:12,color:"#999",marginBottom:6}}>Dosis (opcional, si la sabés)</div>
+          <input style={S.inp} type="number" step="0.01" placeholder="Ej: 0.3" value={dosis} onChange={e=>sdo(e.target.value)}/>
+        </>}
+      </div>}
+
+      {/* 5. PRECIO */}
+      {um && <div className="fade-in" style={S.sec}>
+        <div style={S.slab}><span style={S.snum}>5</span> Precio en USD</div>
+        <div style={{background:"#fff",borderRadius:12,padding:16,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:22,fontWeight:700,color:"#36398E"}}>USD</span>
+            <input style={{...S.inp,fontSize:26,fontWeight:700,flex:1,textAlign:"right"}} type="number" step="0.01" placeholder="0.00" value={precio} onChange={e=>spc(e.target.value)}/>
+          </div>
+          <div style={{fontSize:12,color:"#999",marginTop:4,textAlign:"right"}}>por {um}</div>
+        </div>
+        {costoHa && <div style={{background:"#EDE7F6",borderRadius:10,padding:12,border:"1px solid #36398E",marginTop:8}}>
+          <div style={{fontSize:12,color:"#36398E",fontWeight:600}}>Costo/Ha estimado: <strong>USD {costoHa}</strong></div>
+        </div>}
+      </div>}
+
+      {/* 6. FOTO + ENVIAR */}
+      {precio && <div className="fade-in" style={S.sec}>
+        <div style={S.slab}><span style={S.snum}>6</span> Foto <span style={{fontSize:11,fontWeight:400,color:"#999"}}>(opcional)</span></div>
+        <div style={{background:"#fff",borderRadius:12,border:"2px dashed #e0e0e0",padding:24,textAlign:"center",color:"#bbb",fontSize:14,marginBottom:16}}>
+          📷 Tocar para sacar foto<br/><span style={{fontSize:11}}>(Demo: deshabilitado)</span>
+        </div>
+
+        {/* Resumen */}
+        <div style={{background:"#fff",borderRadius:12,padding:16,border:"1px solid #e0e0e0",marginBottom:16}}>
+          <div style={{fontSize:13,fontWeight:700,color:"#555",marginBottom:8}}>📝 Resumen</div>
+          <div style={{fontSize:15,fontWeight:700}}>{prod.n} <span style={{fontSize:12,fontWeight:400,color:"#777"}}>({prod.e})</span></div>
+          <div style={{fontSize:18,fontWeight:700,color:"#36398E",marginTop:4}}>USD {precio} / {um}</div>
+          <div style={{fontSize:12,color:"#777",marginTop:4}}>{acceso} · {dist}, {depto}</div>
+          {dosis && <div style={{fontSize:12,color:"#777"}}>Dosis: {dosis} · Costo/ha: USD {costoHa}</div>}
+        </div>
+
+        <button onClick={()=>sok(true)} style={S.gb}>✓ Enviar reporte</button>
+      </div>}
+
+      <div ref={bottomRef}/>
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   MIS REPORTES
+   ═══════════════════════════════════════ */
+function Hist({back}){
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Mis Reportes</div></div>
+    <div style={{padding:16,display:"flex",flexDirection:"column",gap:8}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+        <span style={{fontSize:13,color:"#999"}}>{REPORTES.length} reportes</span>
+        <span style={{fontSize:12,color:"#F59E0B",fontWeight:600}}>{REPORTES.filter(r=>r.estado==="pendiente").length} pendientes</span>
+      </div>
+      {REPORTES.map(r=>
+        <div key={r.id} style={{background:"#fff",borderRadius:12,padding:14,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+            <span style={{fontSize:14,fontWeight:700}}>{r.prod}</span>
+            <span style={S.es(r.estado==="validado"?"#00A651":"#F59E0B")}>{r.estado==="validado"?"✓ Validado":"⏳ Pendiente"}</span>
+          </div>
+          <div style={{fontSize:16,fontWeight:700,color:"#36398E"}}>USD {r.precio} <span style={{fontSize:12,fontWeight:400,color:"#999"}}>/ {r.um}</span></div>
+          <div style={{fontSize:12,color:"#555",marginTop:4}}>{r.acceso} · {r.dist}, {r.depto}</div>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+            <span style={{fontSize:10,background:"#f0f0f0",padding:"2px 8px",borderRadius:10,color:"#666"}}>{r.emp} · {r.linea}</span>
+            <span style={{fontSize:11,color:"#999"}}>{r.fecha}</span>
+          </div>
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   COMPARADOR COSTO/HA — VS
+   SYN: precio + dosis precargados
+   Competencia: DTM tipea precio/L y dosis
+   ═══════════════════════════════════════ */
+const SYN_P=[
+  {n:"PRIORI XTRA",l:"FUN",d:0.4,p:32,u:"L"},{n:"PRIORI XTRA GOLD",l:"FUN",d:0.4,p:38,u:"L"},{n:"AMISTAR TOP",l:"FUN",d:0.3,p:35,u:"L"},
+  {n:"MAZEN",l:"FUN",d:0.2,p:55,u:"kg"},{n:"MAZEN FORTE",l:"FUN",d:0.45,p:42,u:"L"},{n:"CERATAVO",l:"FUN",d:0.2,p:58,u:"kg"},
+  {n:"CERATAVO FORTE",l:"FUN",d:0.45,p:44,u:"L"},{n:"MIRAVIS FORTE",l:"FUN",d:0.9,p:28,u:"L"},{n:"CYPRESS",l:"FUN",d:0.4,p:26,u:"L"},
+  {n:"VALIVIS",l:"FUN",d:0.4,p:30,u:"L"},{n:"SCORE",l:"FUN",d:0.3,p:24,u:"L"},{n:"BRAVONIL",l:"FUN",d:1.0,p:12,u:"L"},
+  {n:"BRAVONIL TOP",l:"FUN",d:1.5,p:14,u:"L"},{n:"TRINITY",l:"FUN",d:2.25,p:8,u:"L"},{n:"SPYRALE",l:"FUN",d:0.8,p:22,u:"L"},
+  {n:"SYMETRY",l:"FUN",d:0.5,p:34,u:"L"},{n:"ALTO ELITE",l:"FUN",d:1.0,p:18,u:"L"},{n:"SEEKER",l:"FUN",d:0.3,p:36,u:"L"},
+  {n:"KARATE ZEON",l:"INS",d:0.1,p:28,u:"L"},{n:"ENGEO",l:"INS",d:0.2,p:32,u:"L"},{n:"ENGEO PLENO",l:"INS",d:0.25,p:30,u:"L"},
+  {n:"AMPLIGO",l:"INS",d:0.12,p:65,u:"L"},{n:"MATCH",l:"INS",d:0.1,p:45,u:"L"},{n:"PROCLAIM FIT",l:"INS",d:0.05,p:120,u:"kg"},
+  {n:"ACTARA 75",l:"INS",d:0.05,p:110,u:"kg"},{n:"ENDIGO",l:"INS",d:0.2,p:36,u:"L"},{n:"CAREXO",l:"INS",d:0.1,p:48,u:"L"},
+  {n:"VERDAVIS",l:"INS",d:0.2,p:34,u:"L"},{n:"FENSORAX",l:"INS",d:0.2,p:38,u:"L"},
+  {n:"FLEX",l:"HERB",d:1.0,p:15,u:"L"},{n:"DUAL GOLD",l:"HERB",d:1.8,p:14,u:"L"},{n:"GESAPRIM",l:"HERB",d:2.0,p:8,u:"kg"},
+  {n:"TRAXOS PLUS",l:"HERB",d:0.4,p:42,u:"L"},{n:"EDDUS",l:"HERB",d:2.5,p:9,u:"L"},
+  {n:"CRUISER",l:"SC",d:0.1,p:52,u:"L"},{n:"FORTENZA",l:"SC",d:0.02,p:280,u:"L"},{n:"FORTENZA MAXX",l:"SC",d:0.2,p:65,u:"L"},
+  {n:"MAXIM XL",l:"SC",d:0.1,p:38,u:"L"},{n:"MAXIM ADVANCED",l:"SC",d:0.1,p:42,u:"L"},
+  {n:"VIBRANCE",l:"SC",d:0.06,p:85,u:"L"},{n:"VIBRANCE MAXX",l:"SC",d:0.06,p:92,u:"L"},{n:"VIBRANCE INTEGRAL",l:"SC",d:0.06,p:88,u:"L"},
+  {n:"VICTRATO",l:"SC",d:0.02,p:320,u:"L"},
+];
+
+function Calc({back}){
+  const[synProd,ssp]=useState(null);
+  const[synQ,ssq]=useState("");
+  const[synO,sso]=useState(false);
+  const[compProd,scp]=useState(null);
+  const[compQ,scq]=useState("");
+  const[compO,sco]=useState(false);
+  const[compPrecio,scpr]=useState("");
+  const[compDosis,scdo]=useState("");
+
+  const synF=synQ?SYN_P.filter(p=>p.n.toLowerCase().includes(synQ.toLowerCase())).slice(0,10):SYN_P.slice(0,10);
+  const compF=compQ?COMP_ALL.filter(p=>p.n.toLowerCase().includes(compQ.toLowerCase())).slice(0,10):[];
+
+  const synHa=synProd?(synProd.d*synProd.p).toFixed(2):"";
+  const compHa=compPrecio&&compDosis?(parseFloat(compPrecio)*parseFloat(compDosis)).toFixed(2):"";
+  const diff=synHa&&compHa?(parseFloat(compHa)-parseFloat(synHa)).toFixed(2):"";
+  const synWins=diff&&parseFloat(diff)>0;
+  const compWins=diff&&parseFloat(diff)<0;
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Comparador Costo/Ha</div></div>
+    <div style={{padding:16}}>
+
+      {/* ── SYNGENTA (precargado) ── */}
+      <div style={{marginBottom:16}}>
+        <div style={{fontSize:12,fontWeight:700,color:"#00A651",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>🟢 SYNGENTA <span style={{fontSize:10,fontWeight:400,color:"#999"}}>(datos precargados)</span></div>
+        {synProd
+          ? <div style={{background:"#E8F5E9",borderRadius:12,padding:14,border:"1px solid #00A651"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div style={{fontSize:16,fontWeight:700,color:"#00A651"}}>{synProd.n}</div>
+                <button onClick={()=>ssp(null)} style={{background:"none",border:"none",color:"#00A651",fontWeight:600,cursor:"pointer",fontSize:12}}>Cambiar</button>
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                <div style={{flex:1,background:"#fff",borderRadius:8,padding:10,textAlign:"center"}}>
+                  <div style={{fontSize:10,color:"#999"}}>Precio</div>
+                  <div style={{fontSize:16,fontWeight:700}}>USD {synProd.p}<span style={{fontSize:11,fontWeight:400}}>/{synProd.u}</span></div>
+                </div>
+                <div style={{flex:1,background:"#fff",borderRadius:8,padding:10,textAlign:"center"}}>
+                  <div style={{fontSize:10,color:"#999"}}>Dosis</div>
+                  <div style={{fontSize:16,fontWeight:700}}>{synProd.d} {synProd.u}/ha</div>
+                </div>
+              </div>
+              <div style={{background:"#fff",borderRadius:8,padding:12,textAlign:"center",marginTop:8}}>
+                <div style={{fontSize:10,color:"#00A651"}}>Costo aplicación/ha</div>
+                <div style={{fontSize:26,fontWeight:700,color:"#00A651"}}>USD {synHa}</div>
+              </div>
+            </div>
+          : <div>
+              <input style={S.inp} placeholder="Buscar producto Syngenta..." value={synQ} onChange={e=>{ssq(e.target.value);sso(true)}} onFocus={()=>sso(true)}/>
+              {synO && <div style={{background:"#fff",borderRadius:10,border:"1px solid #e0e0e0",maxHeight:240,overflowY:"auto",marginTop:-6}}>
+                {synF.map(p=>
+                  <div key={p.n} onClick={()=>{ssp(p);ssq("");sso(false)}} style={{padding:"11px 14px",borderBottom:"1px solid #f0f0f0",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <div><div style={{fontSize:14,fontWeight:600}}>{p.n}</div><div style={{fontSize:10,color:"#999"}}>{p.l} · {p.d} {p.u}/ha</div></div>
+                    <span style={{fontSize:12,color:"#00A651",fontWeight:700}}>USD {p.p}/{p.u}</span>
+                  </div>
+                )}
+              </div>}
+            </div>
+        }
+      </div>
+
+      {/* ── COMPETENCIA (DTM tipea) ── */}
+      <div style={{marginBottom:16}}>
+        <div style={{fontSize:12,fontWeight:700,color:"#e53935",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>🔴 COMPETENCIA <span style={{fontSize:10,fontWeight:400,color:"#999"}}>(ingresá precio y dosis)</span></div>
+        <div style={{background:"#fff",borderRadius:12,padding:14,border:"1px solid #e53935"}}>
+          {compProd
+            ? <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div><div style={{fontSize:15,fontWeight:700,color:"#e53935"}}>{compProd.n}</div><div style={{fontSize:10,color:"#999"}}>{compProd.e} · {compProd.l}</div></div>
+                <button onClick={()=>{scp(null);scpr("");scdo("")}} style={{background:"none",border:"none",color:"#e53935",fontWeight:600,cursor:"pointer",fontSize:12}}>Cambiar</button>
+              </div>
+            : <div>
+                <input style={{...S.inp,marginBottom:4}} placeholder="Buscar producto competencia..." value={compQ} onChange={e=>{scq(e.target.value);sco(true)}} onFocus={()=>sco(true)}/>
+                {compO&&compQ&&<div style={{background:"#fff",borderRadius:8,border:"1px solid #e0e0e0",maxHeight:160,overflowY:"auto",marginBottom:4}}>
+                  {compF.map((p,i)=>
+                    <div key={p.n+i} onClick={()=>{scp(p);scq("");sco(false)}} style={{padding:"10px 14px",borderBottom:"1px solid #f0f0f0",cursor:"pointer"}}>
+                      <span style={{fontSize:13,fontWeight:600}}>{p.n}</span>
+                      <span style={{fontSize:10,color:"#999",marginLeft:6}}>{p.e}</span>
+                    </div>
+                  )}
+                </div>}
+              </div>
+          }
+          {compProd && <div className="fade-in">
+            <div style={{display:"flex",gap:8}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:11,color:"#999",marginBottom:4}}>Precio USD/L</div>
+                <input style={{...S.inp,fontSize:16,fontWeight:700,textAlign:"center"}} type="number" step="0.01" placeholder="0.00" value={compPrecio} onChange={e=>scpr(e.target.value)}/>
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:11,color:"#999",marginBottom:4}}>Dosis/ha</div>
+                <input style={{...S.inp,fontSize:16,fontWeight:700,textAlign:"center"}} type="number" step="0.01" placeholder="0.00" value={compDosis} onChange={e=>scdo(e.target.value)}/>
+              </div>
+            </div>
+            {compHa && <div style={{background:"#FFEBEE",borderRadius:8,padding:12,textAlign:"center",marginTop:4}}>
+              <div style={{fontSize:10,color:"#e53935"}}>Costo aplicación/ha</div>
+              <div style={{fontSize:26,fontWeight:700,color:"#e53935"}}>USD {compHa}</div>
+            </div>}
+          </div>}
+        </div>
+      </div>
+
+      {/* ── RESULTADO VS ── */}
+      {diff && <div className="fade-in">
+        <div style={{background:synWins?"linear-gradient(135deg, #00A651, #2E7D32)":compWins?"linear-gradient(135deg, #e53935, #c62828)":"linear-gradient(135deg, #36398E, #5C5FBF)",borderRadius:14,padding:20,textAlign:"center"}}>
+          <div style={{fontSize:11,color:"rgba(255,255,255,.7)",textTransform:"uppercase",letterSpacing:1}}>Diferencia por hectárea</div>
+          <div style={{fontSize:34,fontWeight:700,color:"#fff",marginTop:6}}>USD {Math.abs(parseFloat(diff)).toFixed(2)}</div>
+          <div style={{fontSize:15,fontWeight:600,color:"#fff",marginTop:4}}>
+            {synWins?"✅ Syngenta es más económico":compWins?"Competencia es más económico":"Mismo costo por hectárea"}
+          </div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,.6)",marginTop:10,lineHeight:1.6}}>
+            {synProd?.n}: USD {synHa}/ha ({synProd?.d} {synProd?.u}/ha × ${synProd?.p}/{synProd?.u})<br/>
+            {compProd?.n}: USD {compHa}/ha ({compDosis}/ha × ${compPrecio}/L)
+          </div>
+        </div>
+      </div>}
+
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   MAPA DE PRECIOS
+   ═══════════════════════════════════════ */
+function MapaP({back}){
+  const[vista,sv]=useState("tabla");
+  const[filtro,sf]=useState("");
+  const filtered=filtro?MAPA_DATA.filter(d=>d.emp.toLowerCase().includes(filtro.toLowerCase())||d.prod.toLowerCase().includes(filtro.toLowerCase())):MAPA_DATA;
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Mapa de Precios</div></div>
+    <div style={{display:"flex",gap:0,background:"#fff",borderBottom:"1px solid #f0f0f0"}}>
+      {[["tabla","📊 Tabla"],["mapa","📍 Mapa"],["time","📈 Timeline"]].map(([k,l])=>
+        <button key={k} onClick={()=>sv(k)} style={{flex:1,padding:12,border:"none",background:vista===k?"#EDE7F6":"#fff",color:vista===k?"#36398E":"#999",fontWeight:vista===k?700:400,fontSize:13,cursor:"pointer",borderBottom:vista===k?"2px solid #36398E":"2px solid transparent"}}>{l}</button>
+      )}
+    </div>
+    <div style={{padding:16}}>
+      <input style={{...S.inp,marginBottom:12}} placeholder="Filtrar por producto o empresa..." value={filtro} onChange={e=>sf(e.target.value)}/>
+
+      {vista==="tabla" && <div>{filtered.map((d,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+            <span style={{fontSize:14,fontWeight:700}}>{d.prod}</span>
+            <span style={{fontSize:10,background:"#f0f0f0",padding:"2px 8px",borderRadius:10,color:"#666"}}>{d.emp}</span>
+          </div>
+          <div style={{display:"flex",gap:12,marginTop:8}}>
+            {[["Prom","#36398E",d.prom],["Min","#00A651",d.min],["Max","#e53935",d.max],["Rep.","#555",d.rep]].map(([l,c,v])=>
+              <div key={l} style={{textAlign:"center",flex:1}}>
+                <div style={{fontSize:10,color:"#999"}}>{l}</div>
+                <div style={{fontSize:l==="Prom"?16:14,fontWeight:l==="Prom"?700:600,color:c}}>{l!=="Rep."?"USD ":""}{v}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}</div>}
+
+      {vista==="mapa" && <div>
+        <div style={{background:"#fff",borderRadius:14,border:"1px solid #e0e0e0",overflow:"hidden"}}>
+          <div style={{background:"linear-gradient(135deg,#E8F5E9,#C8E6C9)",padding:30,position:"relative",minHeight:250}}>
+            <div style={{fontSize:12,color:"#555",marginBottom:10,fontWeight:600,textAlign:"center"}}>Paraguay — Zona productiva</div>
+            <div style={{position:"absolute",top:"25%",right:"25%",background:"#36398E",color:"#fff",padding:"6px 12px",borderRadius:20,fontSize:12,fontWeight:700,boxShadow:"0 2px 8px rgba(0,0,0,.2)"}}>Alto Paraná<br/><span style={{fontSize:10,fontWeight:400}}>Prom. $43/L FUN</span></div>
+            <div style={{position:"absolute",top:"58%",right:"20%",background:"#36398E",color:"#fff",padding:"6px 12px",borderRadius:20,fontSize:12,fontWeight:700,boxShadow:"0 2px 8px rgba(0,0,0,.2)"}}>Itapúa<br/><span style={{fontSize:10,fontWeight:400}}>Prom. $37/L FUN</span></div>
+            <div style={{position:"absolute",top:"38%",left:"10%",background:"#36398E",color:"#fff",padding:"6px 12px",borderRadius:20,fontSize:12,fontWeight:700,boxShadow:"0 2px 8px rgba(0,0,0,.2)"}}>Caaguazú<br/><span style={{fontSize:10,fontWeight:400}}>Prom. $35/L FUN</span></div>
+          </div>
+          <div style={{padding:14,fontSize:12,color:"#999"}}>Precio promedio fungicidas por departamento. {MAPA_DATA.reduce((a,d)=>a+d.rep,0)} reportes.</div>
+        </div>
+      </div>}
+
+      {vista==="time" && <div>
+        {[{n:"Cripton Xpro",e:"Bayer",c:"#36398E",d:[{m:"Ene",p:40},{m:"Feb",p:42},{m:"Mar",p:41},{m:"Abr",p:44},{m:"May",p:43}]},
+          {n:"Vessarya",e:"Corteva",c:"#8B5CF6",d:[{m:"Ene",p:35},{m:"Feb",p:36},{m:"Mar",p:38},{m:"Abr",p:37},{m:"May",p:37}]},
+          {n:"Opera",e:"BASF",c:"#F59E0B",d:[{m:"Ene",p:32},{m:"Feb",p:33},{m:"Mar",p:34},{m:"Abr",p:35},{m:"May",p:34}]}
+        ].map(t=>
+          <div key={t.n} style={{background:"#fff",borderRadius:14,padding:16,border:"1px solid #e0e0e0",marginBottom:10}}>
+            <div style={{fontSize:14,fontWeight:700,marginBottom:12}}>{t.n} <span style={{fontSize:11,fontWeight:400,color:"#999"}}>({t.e})</span></div>
+            {t.d.map(d=>
+              <div key={d.m} style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                <span style={{fontSize:12,color:"#999",width:30}}>{d.m}</span>
+                <div style={{flex:1,background:"#f0f0f0",borderRadius:6,height:22}}>
+                  <div style={{background:t.c,borderRadius:6,height:22,width:(d.p/55*100)+"%",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:8}}>
+                    <span style={{fontSize:10,fontWeight:700,color:"#fff"}}>${d.p}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div style={{fontSize:10,color:"#999",marginTop:4}}>USD/L por mes — 2026</div>
+          </div>
+        )}
+      </div>}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   APP ROUTER
+   ═══════════════════════════════════════ */
+function App(){
+  const[v,sv]=useState("home");
+  const routes={home:Home,rep:Rep,hist:Hist,calc:Calc,mapa:MapaP};
+  const Comp=routes[v];
+  if(!Comp) return null;
+  const props=v==="home"?{go:sv}:{back:()=>sv("home")};
+  return <Comp {...props}/>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
