@@ -1,407 +1,606 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Demo - DTM Mobile | Syngenta Paraguay</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; overscroll-behavior: none; }
-        #root { max-width: 430px; margin: 0 auto; min-height: 100vh; background: #f5f5f5; position: relative; }
-        @media (min-width: 431px) { #root { border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; box-shadow: 0 0 40px rgba(0,0,0,0.08); } body { background: #e8e8e8; } }
-        input, select, textarea { font-family: inherit; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>DTM Mobile | Syngenta PY</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#e8e8e8}#root{max-width:430px;margin:0 auto;min-height:100vh;background:#f5f5f5;position:relative;border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0}input,select,textarea{font-family:inherit}::-webkit-scrollbar{display:none}</style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState } = React;
+const{useState}=React;
 
-const MENU = [
-  { label: "Nueva Visita", sub: "Registra una visita ahora", icon: "⚡", color: "#F59E0B", route: "new-visit" },
-  { label: "Mis Visitas", sub: "Historial de visitas", icon: "📋", color: "#3B82F6", route: "visits" },
-  { label: "Mis Productores", sub: "Farmers y datos cualitativos", icon: "👥", color: "#00A651", route: "farmers" },
-  { label: "Charlas", sub: "Registro de capacitaciones", icon: "🎓", color: "#8B5CF6", route: "trainings" },
-  { label: "Agenda", sub: "Visitas programadas", icon: "📅", color: "#EC4899", route: "agenda" },
-  { label: "Monitoreos", sub: "Seguimiento de aplicaciones", icon: "🧪", color: "#06B6D4", route: "monitoreos" },
-  { label: "EUPs", sub: "Ensayos comparativos en campo", icon: "🌱", color: "#10B981", route: "eup" },
-];
-
-const STEPS = ["Cliente", "Cultivo", "Posicionamiento", "Cierres", "Aplicaciones", "Fenología", "Notas"];
-const FARMERS = [
-  { id: "1", nombre: "Juan Benítez", establecimiento: "Estancia El Sol", es_soy_leader: true },
-  { id: "2", nombre: "Roberto Schmalko", establecimiento: "Campo Norte", es_soy_leader: true },
-  { id: "3", nombre: "Ana Villalba", establecimiento: "Finca Santa Ana", es_soy_leader: true },
-  { id: "4", nombre: "Pedro Ramírez", establecimiento: "Agro Paraná", es_soy_leader: true },
-  { id: "5", nombre: "María González", establecimiento: "La Esperanza", es_soy_leader: true },
-];
-const PRODUCTS = [
-  { id: 1, nombre: "AMISTAR TOP", linea: "FUN" },
-  { id: 2, nombre: "ELATUS", linea: "FUN" },
-  { id: 3, nombre: "KARATE ZEON", linea: "INS" },
-  { id: 4, nombre: "CRUISER", linea: "SC" },
-  { id: 5, nombre: "FLEX", linea: "HERB" },
-  { id: 6, nombre: "MIRAVIS DUO", linea: "FUN" },
-  { id: 7, nombre: "FORTENZA DUO", linea: "SC" },
-  { id: 8, nombre: "ORION", linea: "FUN" },
-];
-
-const s = {
-  safe: { minHeight: "100vh", background: "#f5f5f5", paddingBottom: 40 },
-  scroll: { padding: 20, paddingTop: 16 },
-  header: { textAlign: "center", marginBottom: 28 },
-  greeting: { fontSize: 24, fontWeight: 700, color: "#1a1a1a" },
-  date: { fontSize: 13, color: "#888", marginTop: 4, textTransform: "capitalize" },
-  card: { background: "#fff", borderRadius: 14, padding: 14, display: "flex", flexDirection: "row", alignItems: "center", marginBottom: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", cursor: "pointer", border: "none", width: "100%", textAlign: "left" },
-  iconWrap: { width: 46, height: 46, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", marginRight: 14, fontSize: 22, flexShrink: 0 },
-  cardText: { flex: 1 },
-  cardLabel: { fontSize: 15, fontWeight: 700, color: "#1a1a1a" },
-  cardSub: { fontSize: 12, color: "#888", marginTop: 2 },
-  chevron: { color: "#ccc", fontSize: 16 },
-  logoutBtn: { marginTop: 16, background: "#fff0f0", borderRadius: 14, padding: 16, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", border: "1px solid #ffcccc", cursor: "pointer", width: "100%" },
-  logoutText: { fontSize: 14, fontWeight: 700, color: "#e53935" },
-  // Visit wizard
-  wizHeader: { background: "#00A651", paddingTop: 52, paddingBottom: 14, paddingLeft: 20, paddingRight: 20 },
-  wizTitle: { fontSize: 20, fontWeight: 700, color: "#fff" },
-  wizBack: { background: "none", border: "none", color: "rgba(255,255,255,0.85)", fontSize: 22, cursor: "pointer", marginBottom: 6, padding: 0 },
-  stepsRow: { display: "flex", gap: 6, padding: "12px 16px", background: "#fff", overflowX: "auto", borderBottom: "1px solid #f0f0f0" },
-  stepItem: { display: "flex", flexDirection: "column", alignItems: "center", minWidth: 52 },
-  stepDot: { width: 26, height: 26, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, marginBottom: 3 },
-  stepLabel: { fontSize: 9, textAlign: "center" },
-  content: { padding: 20 },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: "#1a1a1a", marginBottom: 10, marginTop: 4 },
-  sectionSub: { fontSize: 12, color: "#999", marginBottom: 14, marginTop: -6 },
-  toggleRow: { display: "flex", gap: 8, marginBottom: 12 },
-  toggleBtn: { flex: 1, padding: 10, borderRadius: 10, border: "1px solid #e0e0e0", textAlign: "center", background: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#999" },
-  toggleActive: { borderColor: "#00A651", background: "#E8F5E9", color: "#00A651" },
-  input: { width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid #e0e0e0", fontSize: 15, outline: "none", marginBottom: 10, background: "#fff", boxSizing: "border-box" },
-  farmerCard: { background: "#fff", borderRadius: 10, padding: 14, marginBottom: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.04)", cursor: "pointer" },
-  selectedCard: { background: "#fff", borderRadius: 12, padding: 14, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", border: "1px solid #e0e0e0", marginBottom: 8 },
-  chipRow: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 },
-  chip: { padding: "8px 14px", borderRadius: 20, border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#555" },
-  chipActive: { background: "#E8F5E9", borderColor: "#00A651", color: "#00A651", fontWeight: 600 },
-  lineaBlock: { background: "#fff", borderRadius: 12, padding: 14, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2, border: "1px solid #e0e0e0", cursor: "pointer" },
-  badge: { padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, color: "#fff" },
-  sliderBlock: { background: "#fff", borderRadius: 12, padding: 16, border: "1px solid #e0e0e0", marginBottom: 14 },
-  sliderLabel: { display: "flex", justifyContent: "space-between", marginBottom: 6 },
-  slider: { width: "100%", accentColor: "#00A651" },
-  textarea: { width: "100%", padding: 12, borderRadius: 10, border: "1px solid #e0e0e0", fontSize: 14, minHeight: 120, resize: "vertical", outline: "none", fontFamily: "inherit", boxSizing: "border-box" },
-  navRow: { display: "flex", gap: 10, marginTop: 24 },
-  navBtn: { flex: 1, borderRadius: 12, padding: 14, textAlign: "center", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, border: "1px solid #e0e0e0", background: "#fff", color: "#555" },
-  navBtnPrimary: { background: "#00A651", borderColor: "#00A651", color: "#fff", fontWeight: 700 },
-  demo: { textAlign: "center", padding: 20, color: "#bbb", fontSize: 11 },
+/* ══════════════════════════════════════════════
+   CATÁLOGO REAL SYNGENTA PARAGUAY
+   Solo productos del maestro proporcionado
+   ══════════════════════════════════════════════ */
+const P={
+  FUN:["PRIME","TILT","PRIORI XTRA","AMISTAR TOP","MAZEN","MAZEN FORTE","CERATAVO","CERATAVO FORTE","PRIORI XTRA GOLD","SCORE","SCORE FLEXI","CYPRESS","VALIVIS","OCHIMA","QUANTIS","BRAVONIL","BRAVONIL TOP","TRINITY","SEEKER","SYMETRY","SPYRALE","APROVIA TURBO","SOLATENOL TECNICO","MIRAVIS FORTE","ALTO ELITE","ERIA"],
+  SC:["CRUISER","FORTENZA","FORTENZA MAXX","MAXIM XL","MAXIM ADVANCED","MAXIM RFC","VIBRANCE","VIBRANCE MAXX","VIBRANCE INTEGRAL","SPECTRO","EKEY TOP","CERTICOR","CURANZA","VICTRATO","CURYOM","VERTIMEC 8.4","BIOGLOSS","RIZO LIQ","PREMAX","PRIMEPLUS","RIZODERMA MAX","RIZOLIQ DAKAR","PROTEX"],
+  INS:["KARATE","KARATE ZEON","ENGEO","ENGEO PLENO","AMPLIGO","MATCH","PROCLAIM FIT","ACTARA 75","ACTARA 250","ENDIGO","CAREXO","FENSORAX","EFONEO","VERDAVIS","ELESTAL NEO","SITOLAN"],
+  HERB:["FLEX","DUAL GOLD","GESAPRIM","TOPIK","TRAXOS","TRAXOS PLUS","EDDUS","TRASPECT","FILAFIR","DALEST"],
+  NSH:["ZAPP","GRAMOCIL","GRAMOXONE","FARMON","REGLONE","SULFOSATO TOUCHDOWN MAX","MAGNUM"],
+  PACK:["FORTENZA PACK","FORTENZA PACK MAIZ","PACK ENDIGO","PACK FORTENZA VIBRANCE MAXX","PACK FENSORAX","PACK VICTRATO","PACK VICTRATO MAXX"],
+  "L&G":["ACTELLIC 500","ICON","DEMAND"],
+  OTH:["AGRAL","NIMBUS","ENERGIC"]
 };
 
-function getTodayLabel() {
-  return new Date().toLocaleDateString("es-PY", { weekday: "long", day: "numeric", month: "long" });
-}
+const MN=[
+  {l:"Nueva Visita",s:"Registra una visita ahora",i:"⚡",c:"#F59E0B",r:"wiz"},
+  {l:"Mis Visitas",s:"Historial de visitas",i:"📋",c:"#3B82F6",r:"vis"},
+  {l:"Mis Productores",s:"Farmers y datos cualitativos",i:"👥",c:"#00A651",r:"far"},
+  {l:"Charlas",s:"Registro de capacitaciones",i:"🎓",c:"#8B5CF6",r:"cha"},
+  {l:"Agenda",s:"Visitas programadas",i:"📅",c:"#EC4899",r:"age"},
+  {l:"Monitoreos",s:"Seguimiento de aplicaciones",i:"🧪",c:"#06B6D4",r:"mon"},
+  {l:"EUPs",s:"Ensayos comparativos en campo",i:"🌱",c:"#10B981",r:"eup"}
+];
 
-function Home({ onNavigate }) {
-  return (
-    <div style={s.safe}>
-      <div style={s.scroll}>
-        <div style={s.header}>
-          <div style={s.greeting}>Hola, Carlos 👋</div>
-          <div style={s.date}>{getTodayLabel()}</div>
+const ST=["Cliente","Cultivo","Posicionam.","Cierres","Aplicaciones","Fenología","Notas"];
+
+const FM=[
+  {id:"1",n:"Juan Benítez",e:"Estancia El Sol",d:"Itapúa",di:"Capitán Miranda",h:350,cu:["Soja","Trigo"]},
+  {id:"2",n:"Roberto Schmalko",e:"Campo Norte",d:"Alto Paraná",di:"Santa Rita",h:780,cu:["Soja"]},
+  {id:"3",n:"Ana Villalba",e:"Finca Santa Ana",d:"Itapúa",di:"Hohenau",h:180,cu:["Soja","Maíz"]},
+  {id:"4",n:"Pedro Ramírez",e:"Agro Paraná",d:"Alto Paraná",di:"Naranjal",h:1200,cu:["Soja","Trigo","Canola"]},
+  {id:"5",n:"María González",e:"La Esperanza",d:"Itapúa",di:"Bella Vista",h:520,cu:["Soja"]},
+  {id:"6",n:"Diego Fernández",e:"San Miguel",d:"Caaguazú",di:"Coronel Oviedo",h:420,cu:["Soja","Maíz"]}
+];
+
+/* ═══ STYLES ═══ */
+const S={
+  inp:{width:"100%",padding:"11px 14px",borderRadius:10,border:"1px solid #e0e0e0",fontSize:14,outline:"none",marginBottom:10,background:"#fff",boxSizing:"border-box"},
+  lb:{background:"#fff",borderRadius:12,padding:14,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2,border:"1px solid #e0e0e0",cursor:"pointer"},
+  bg:o=>({padding:"4px 12px",borderRadius:20,fontSize:12,fontWeight:700,color:"#fff",background:o?"#00A651":"#e0e0e0"}),
+  tb:a=>({flex:1,padding:10,borderRadius:10,border:a?"1px solid #00A651":"1px solid #e0e0e0",textAlign:"center",background:a?"#E8F5E9":"#fff",cursor:"pointer",fontSize:13,fontWeight:600,color:a?"#00A651":"#999"}),
+  ch:a=>({padding:"8px 14px",borderRadius:20,border:a?"1px solid #00A651":"1px solid #e0e0e0",background:a?"#E8F5E9":"#fff",cursor:"pointer",fontSize:13,color:a?"#00A651":"#555",fontWeight:a?600:400}),
+  es:c=>({display:"inline-block",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,border:"1px solid "+c,color:c,background:c+"15"}),
+  hd:{background:"#00A651",paddingTop:52,paddingBottom:14,paddingLeft:20,paddingRight:20},
+  ht:{fontSize:20,fontWeight:700,color:"#fff"},
+  hb:{background:"none",border:"none",color:"rgba(255,255,255,.85)",fontSize:22,cursor:"pointer",marginBottom:6,padding:0},
+  dm:{textAlign:"center",padding:20,color:"#bbb",fontSize:11},
+  green_btn:{width:"100%",background:"#00A651",color:"#fff",border:"none",borderRadius:12,padding:14,fontWeight:700,fontSize:14,cursor:"pointer"}
+};
+
+function td(){return new Date().toLocaleDateString("es-PY",{weekday:"long",day:"numeric",month:"long"})}
+
+/* ═══════════════════════════════════════
+   HOME
+   ═══════════════════════════════════════ */
+function Home({go}){
+  return <div style={{minHeight:"100vh",background:"#f5f5f5",paddingBottom:40}}>
+    <div style={{padding:20,paddingTop:16}}>
+      {/* Header verde */}
+      <div style={{background:"#00A651",margin:"-16px -20px 20px",padding:"20px 20px 16px",borderRadius:"0 0 20px 20px"}}>
+        <div style={{fontSize:22,fontWeight:700,color:"#fff"}}>Hola, Carlos 👋</div>
+        <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:4,textTransform:"capitalize"}}>{td()}</div>
+        <div style={{display:"flex",gap:8,marginTop:12}}>
+          {[["54","Visitas mes"],["6","Pendientes hoy"],["2","Sin sync"]].map(([v,l])=>
+            <div key={l} style={{flex:1,background:"rgba(255,255,255,.15)",borderRadius:10,padding:10,textAlign:"center"}}>
+              <div style={{fontSize:18,fontWeight:700,color:"#fff"}}>{v}</div>
+              <div style={{fontSize:10,color:"rgba(255,255,255,.7)"}}>{l}</div>
+            </div>
+          )}
         </div>
-        <div>
-          {MENU.map(item => (
-            <button key={item.route} style={s.card} onClick={() => onNavigate(item.route)}>
-              <div style={{ ...s.iconWrap, background: item.color + "18" }}>{item.icon}</div>
-              <div style={s.cardText}>
-                <div style={s.cardLabel}>{item.label}</div>
-                <div style={s.cardSub}>{item.sub}</div>
-              </div>
-              <span style={s.chevron}>›</span>
-            </button>
-          ))}
-        </div>
-        <button style={s.logoutBtn}>
-          <span style={{ marginRight: 8 }}>🚪</span>
-          <span style={s.logoutText}>Cerrar sesión</span>
+      </div>
+
+      {/* Menu items */}
+      {MN.map(m=>
+        <button key={m.r} onClick={()=>go(m.r)} style={{background:"#fff",borderRadius:14,padding:14,display:"flex",flexDirection:"row",alignItems:"center",marginBottom:10,boxShadow:"0 1px 4px rgba(0,0,0,.06)",cursor:"pointer",border:"none",width:"100%",textAlign:"left"}}>
+          <div style={{width:46,height:46,borderRadius:13,display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,fontSize:22,background:m.c+"18"}}>{m.i}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:15,fontWeight:700,color:"#1a1a1a"}}>{m.l}</div>
+            <div style={{fontSize:12,color:"#888",marginTop:2}}>{m.s}</div>
+          </div>
+          <span style={{color:"#ccc",fontSize:16}}>›</span>
         </button>
-        <div style={s.demo}>Demo con datos ficticios — Syngenta Paraguay</div>
-      </div>
+      )}
+
+      <button style={{marginTop:16,background:"#fff0f0",borderRadius:14,padding:16,display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"center",border:"1px solid #ffcccc",cursor:"pointer",width:"100%"}}>
+        <span style={{marginRight:8}}>🚪</span>
+        <span style={{fontSize:14,fontWeight:700,color:"#e53935"}}>Cerrar sesión</span>
+      </button>
+      <div style={S.dm}>Demo con datos ficticios — Syngenta Paraguay</div>
     </div>
-  );
+  </div>;
 }
 
-function VisitWizard({ onBack }) {
-  const [step, setStep] = useState(0);
-  const [tipoVisita, setTipoVisita] = useState("soy_leader");
-  const [selectedFarmer, setSelectedFarmer] = useState(null);
-  const [search, setSearch] = useState("");
-  const [cultivo, setCultivo] = useState("");
-  const [campana, setCampana] = useState("2025/2026");
-  const [posicionamiento, setPosicionamiento] = useState([]);
-  const [cierres, setCierres] = useState({ SC: { cerrado: false, comp: false }, HERB: { cerrado: false, comp: false }, INS: { cerrado: false, comp: false } });
-  const [aplicaciones, setAplic] = useState({ VEG: false, FUN1: false, FUN2: false, FUN3: false });
-  const [plaga, setPlaga] = useState(false);
-  const [fen, setFen] = useState({ desecacion: 0, siembra: 60, cosecha: 0, ton: "" });
-  const [notas, setNotas] = useState("");
-  const [saved, setSaved] = useState(false);
+/* ═══════════════════════════════════════
+   WIZARD: NUEVA VISITA (7 pasos)
+   ═══════════════════════════════════════ */
+function Wiz({back}){
+  const[step,ss]=useState(0);
+  const[tipo,st]=useState("soy_leader");
+  const[farmer,sf]=useState(null);
+  const[search,sq]=useState("");
+  const[cult,sc]=useState("");
+  const[camp,sm]=useState("2025/2026");
+  const[pos,sp]=useState([]);
+  const[psq,sps]=useState("");
+  const[ci,sci]=useState({SC:{on:false,c:false,p:""},HERB:{on:false,c:false,p:""},INS:{on:false,c:false,p:""}});
+  const[ap,sa]=useState({VEG:false,FUN1:false,FUN2:false,FUN3:false});
+  const[pl,spl]=useState(false);
+  const[fe,sfe]=useState({d:0,s:60,c:0,t:""});
+  const[no,sno]=useState("");
+  const[ok,sok]=useState(false);
 
-  const filtered = FARMERS.filter(f => f.nombre.toLowerCase().includes(search.toLowerCase()));
-  const fecha = new Date().toISOString().split("T")[0];
+  // Todos los productos para posicionamiento (excepto Packs, L&G, OTH)
+  const allP=[...P.FUN,...P.SC,...P.INS,...P.HERB];
+  const ff=FM.filter(f=>f.n.toLowerCase().includes(search.toLowerCase()));
+  const dt=new Date().toISOString().split("T")[0];
+  const cn=()=>{if(step===0)return!!farmer;if(step===1)return!!cult;return true};
 
-  const canNext = () => {
-    if (step === 0) return !!selectedFarmer;
-    if (step === 1) return !!cultivo;
-    return true;
-  };
+  if(ok) return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",padding:40,textAlign:"center",background:"#f5f5f5"}}>
+    <div style={{fontSize:60,marginBottom:20}}>✅</div>
+    <div style={{fontSize:20,fontWeight:700,marginBottom:8}}>Visita registrada</div>
+    <div style={{fontSize:14,color:"#888",marginBottom:24}}>Visita a {farmer?.n} guardada correctamente.</div>
+    <button onClick={back} style={{background:"#00A651",color:"#fff",border:"none",borderRadius:12,padding:"14px 30px",fontWeight:700,fontSize:14,cursor:"pointer"}}>Volver al inicio</button>
+  </div>;
 
-  if (saved) {
-    return (
-      <div style={{ ...s.safe, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", padding: 40, textAlign: "center" }}>
-        <div style={{ fontSize: 60, marginBottom: 20 }}>✅</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: "#1a1a1a", marginBottom: 8 }}>Visita registrada</div>
-        <div style={{ fontSize: 14, color: "#888", marginBottom: 24 }}>Visita a {selectedFarmer?.nombre} guardada exitosamente.</div>
-        <button onClick={onBack} style={{ ...s.navBtn, ...s.navBtnPrimary, maxWidth: 200, border: "none" }}>Volver al inicio</button>
-      </div>
-    );
-  }
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    {/* Header */}
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={S.ht}>Nueva Visita ⚡</div>
+    </div>
 
-  return (
-    <div style={s.safe}>
-      <div style={s.wizHeader}>
-        <button style={s.wizBack} onClick={onBack}>←</button>
-        <div style={s.wizTitle}>Nueva Visita ⚡</div>
-      </div>
-
-      <div style={s.stepsRow}>
-        {STEPS.map((label, i) => (
-          <div key={label} style={s.stepItem}>
-            <div style={{ ...s.stepDot, background: i <= step ? "#00A651" : "#e0e0e0", color: i <= step ? "#fff" : "#999" }}>{i + 1}</div>
-            <div style={{ ...s.stepLabel, color: i === step ? "#00A651" : "#999", fontWeight: i === step ? 600 : 400 }}>{label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={s.content}>
-        {/* Step 0: Cliente */}
-        {step === 0 && (<div>
-          <div style={s.sectionTitle}>Tipo de cliente</div>
-          <div style={s.toggleRow}>
-            <button style={{ ...s.toggleBtn, ...(tipoVisita === "soy_leader" ? s.toggleActive : {}) }} onClick={() => setTipoVisita("soy_leader")}>SOY LEADER</button>
-            <button style={{ ...s.toggleBtn, ...(tipoVisita === "cliente_base" ? s.toggleActive : {}) }} onClick={() => setTipoVisita("cliente_base")}>Cliente Base</button>
-          </div>
-          <div style={s.sectionTitle}>¿A quién visitás?</div>
-          {selectedFarmer ? (
-            <div style={s.selectedCard}>
-              <div><div style={{ fontSize: 15, fontWeight: 600 }}>{selectedFarmer.nombre}</div><div style={{ fontSize: 12, color: "#555", marginTop: 2 }}>{selectedFarmer.establecimiento}</div></div>
-              <button onClick={() => setSelectedFarmer(null)} style={{ background: "none", border: "none", color: "#00A651", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Cambiar</button>
-            </div>
-          ) : (<>
-            <input style={s.input} placeholder="Buscar productor..." value={search} onChange={e => setSearch(e.target.value)} />
-            {filtered.map(f => (
-              <div key={f.id} style={s.farmerCard} onClick={() => setSelectedFarmer(f)}>
-                <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1a" }}>{f.nombre}</div>
-                <div style={{ fontSize: 13, color: "#555", marginTop: 2 }}>{f.establecimiento} · SOY LEADER</div>
-              </div>
-            ))}
-          </>)}
-        </div>)}
-
-        {/* Step 1: Cultivo */}
-        {step === 1 && (<div>
-          <div style={s.sectionTitle}>Cultivo</div>
-          <div style={s.chipRow}>
-            {["Soja", "Trigo", "Maíz", "Canola"].map(c => (
-              <button key={c} style={{ ...s.chip, ...(cultivo === c ? s.chipActive : {}) }} onClick={() => setCultivo(c)}>{c}</button>
-            ))}
-          </div>
-          <div style={s.sectionTitle}>Campaña</div>
-          <div style={s.chipRow}>
-            {["2024/2025", "2025/2026", "2026/2027"].map(c => (
-              <button key={c} style={{ ...s.chip, ...(campana === c ? s.chipActive : {}) }} onClick={() => setCampana(c)}>{c}</button>
-            ))}
-          </div>
-          <div style={s.sectionTitle}>Fecha</div>
-          <div style={{ background: "#fff", borderRadius: 10, padding: 14, border: "1px solid #e0e0e0" }}>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>{fecha}</div>
-            <div style={{ fontSize: 12, color: "#999", marginTop: 2 }}>Asignada automáticamente</div>
-          </div>
-        </div>)}
-
-        {/* Step 2: Posicionamiento */}
-        {step === 2 && (<div>
-          <div style={s.sectionTitle}>Posicionamiento</div>
-          <div style={s.sectionSub}>Seleccioná los productos que fuiste a posicionar hoy.</div>
-          {PRODUCTS.map(p => {
-            const sel = posicionamiento.includes(p.id);
-            return (
-              <div key={p.id} style={{ ...s.lineaBlock, marginBottom: 6, ...(sel ? { borderColor: "#00A651", background: "#E8F5E9" } : {}) }} onClick={() => setPosicionamiento(prev => sel ? prev.filter(x => x !== p.id) : [...prev, p.id])}>
-                <div><div style={{ fontSize: 14, fontWeight: 600 }}>{p.nombre}</div><div style={{ fontSize: 11, color: "#aaa" }}>{p.linea}</div></div>
-                {sel && <span style={{ color: "#00A651", fontWeight: 700 }}>✓</span>}
-              </div>
-            );
-          })}
-        </div>)}
-
-        {/* Step 3: Cierres */}
-        {step === 3 && (<div>
-          <div style={s.sectionTitle}>Cierres de Negocios</div>
-          <div style={s.sectionSub}>¿El productor cerró compra en alguna línea esta campaña?</div>
-          {["SC", "HERB", "INS"].map(linea => (
-            <div key={linea} style={{ marginBottom: 10 }}>
-              <div style={s.lineaBlock} onClick={() => setCierres(p => ({ ...p, [linea]: { ...p[linea], cerrado: !p[linea].cerrado } }))}>
-                <span style={{ fontSize: 15, fontWeight: 600 }}>{linea}</span>
-                <span style={{ ...s.badge, background: cierres[linea].cerrado ? "#00A651" : "#e0e0e0" }}>{cierres[linea].cerrado ? "Cerrado ✓" : "No"}</span>
-              </div>
-              {cierres[linea].cerrado && (
-                <div style={{ background: "#fff", padding: 14, border: "1px solid #e0e0e0", borderTop: "none", borderRadius: "0 0 12px 12px" }}>
-                  <div style={s.toggleRow}>
-                    <button style={{ ...s.toggleBtn, ...(!cierres[linea].comp ? s.toggleActive : {}) }} onClick={() => setCierres(p => ({ ...p, [linea]: { ...p[linea], comp: false } }))}>Syngenta</button>
-                    <button style={{ ...s.toggleBtn, ...(cierres[linea].comp ? s.toggleActive : {}) }} onClick={() => setCierres(p => ({ ...p, [linea]: { ...p[linea], comp: true } }))}>Competencia</button>
-                  </div>
-                  <input style={s.input} placeholder={cierres[linea].comp ? "Nombre producto competencia..." : "Seleccionar producto Syngenta..."} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>)}
-
-        {/* Step 4: Aplicaciones */}
-        {step === 4 && (<div>
-          <div style={s.sectionTitle}>Aplicaciones</div>
-          {[["VEG", "Aplic. Vegetativa"], ["FUN1", "Fungicida 1"], ["FUN2", "Fungicida 2"], ["FUN3", "Fungicida 3"]].map(([key, label]) => (
-            <div key={key} style={{ marginBottom: 10 }}>
-              <div style={s.lineaBlock} onClick={() => setAplic(p => ({ ...p, [key]: !p[key] }))}>
-                <span style={{ fontSize: 15, fontWeight: 600 }}>{label}</span>
-                <span style={{ ...s.badge, background: aplicaciones[key] ? "#00A651" : "#e0e0e0" }}>{aplicaciones[key] ? "Sí" : "No"}</span>
-              </div>
-              {aplicaciones[key] && (
-                <div style={{ background: "#fff", padding: 14, border: "1px solid #e0e0e0", borderTop: "none", borderRadius: "0 0 12px 12px" }}>
-                  <div style={s.toggleRow}>
-                    <button style={{ ...s.toggleBtn, ...s.toggleActive }}>Syngenta</button>
-                    <button style={s.toggleBtn}>Competencia</button>
-                  </div>
-                  <input style={s.input} placeholder="Seleccionar producto..." />
-                </div>
-              )}
-            </div>
-          ))}
-          <div style={{ ...s.lineaBlock, marginTop: 4 }} onClick={() => setPlaga(!plaga)}>
-            <span style={{ fontSize: 15, fontWeight: 600 }}>¿Tiene plaga?</span>
-            <span style={{ ...s.badge, background: plaga ? "#00A651" : "#e0e0e0" }}>{plaga ? "Sí" : "No"}</span>
-          </div>
-          {plaga && (
-            <div style={{ background: "#fff", padding: 14, border: "1px solid #e0e0e0", borderTop: "none", borderRadius: "0 0 12px 12px" }}>
-              <div style={s.chipRow}>
-                {["Roya", "Mancha ojo de rana", "Trips", "Chinche", "Otro"].map(p => (
-                  <button key={p} style={s.chip}>{p}</button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>)}
-
-        {/* Step 5: Fenología */}
-        {step === 5 && (<div>
-          <div style={s.sectionTitle}>Estadio fenológico</div>
-          {[["% Desecación", "desecacion"], ["% Siembra", "siembra"], ["% Cosecha", "cosecha"]].map(([label, key]) => (
-            <div key={key} style={s.sliderBlock}>
-              <div style={s.sliderLabel}>
-                <span style={{ fontSize: 12, color: "#999" }}>{label}</span>
-                <span style={{ fontSize: 18, fontWeight: 700, color: "#00A651" }}>{fen[key]}%</span>
-              </div>
-              <input type="range" min="0" max="100" step="10" value={fen[key]} onChange={e => setFen(p => ({ ...p, [key]: Number(e.target.value) }))} style={s.slider} />
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 10, color: "#ccc" }}>0%</span>
-                <span style={{ fontSize: 10, color: "#ccc" }}>50%</span>
-                <span style={{ fontSize: 10, color: "#ccc" }}>100%</span>
-              </div>
-            </div>
-          ))}
-          <div style={s.sliderBlock}>
-            <div style={{ fontSize: 12, color: "#999", marginBottom: 6 }}>Promedio ton/ha</div>
-            <input style={{ ...s.input, marginBottom: 0 }} type="number" placeholder="0" value={fen.ton} onChange={e => setFen(p => ({ ...p, ton: e.target.value }))} />
-          </div>
-        </div>)}
-
-        {/* Step 6: Notas */}
-        {step === 6 && (<div>
-          <div style={s.sectionTitle}>Observaciones</div>
-          <textarea style={s.textarea} placeholder="Anotá cualquier observación relevante..." value={notas} onChange={e => setNotas(e.target.value)} />
-          <div style={{ ...s.sectionTitle, marginTop: 16 }}>Fotos</div>
-          <div style={{ background: "#fff", borderRadius: 12, border: "2px dashed #e0e0e0", padding: 30, textAlign: "center", color: "#bbb", fontSize: 14 }}>
-            📷 Tocar para agregar fotos<br /><span style={{ fontSize: 11 }}>(Demo: función deshabilitada)</span>
-          </div>
-        </div>)}
-
-        {/* Nav */}
-        <div style={s.navRow}>
-          {step > 0 && (
-            <button style={s.navBtn} onClick={() => setStep(step - 1)}>← Anterior</button>
-          )}
-          {step < 6 && (
-            <button style={{ ...s.navBtn, ...s.navBtnPrimary, ...(canNext() ? {} : { background: "#aaa", borderColor: "#aaa" }) }} onClick={() => canNext() && setStep(step + 1)} disabled={!canNext()}>
-              Siguiente →
-            </button>
-          )}
-          {step === 6 && (
-            <button style={{ ...s.navBtn, ...s.navBtnPrimary, border: "none" }} onClick={() => setSaved(true)}>
-              ✓ Guardar visita
-            </button>
-          )}
+    {/* Stepper */}
+    <div style={{display:"flex",gap:4,padding:"10px 12px",background:"#fff",overflowX:"auto",borderBottom:"1px solid #f0f0f0"}}>
+      {ST.map((l,i)=>
+        <div key={l} style={{display:"flex",flexDirection:"column",alignItems:"center",minWidth:48}}>
+          <div style={{width:24,height:24,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,marginBottom:2,background:i<=step?"#00A651":"#e0e0e0",color:i<=step?"#fff":"#999"}}>{i+1}</div>
+          <div style={{fontSize:8,textAlign:"center",color:i===step?"#00A651":"#999",fontWeight:i===step?600:400}}>{l}</div>
         </div>
-      </div>
-      <div style={s.demo}>Demo con datos ficticios — Syngenta Paraguay</div>
+      )}
     </div>
-  );
-}
 
-function GenericModule({ title, icon, onBack }) {
-  const items = [
-    { name: "Juan Benítez · Soja · 2025/2026", date: "15/05/2026", status: "Completada" },
-    { name: "Roberto Schmalko · Soja · 2025/2026", date: "14/05/2026", status: "Completada" },
-    { name: "Ana Villalba · Trigo · 2025/2026", date: "12/05/2026", status: "Completada" },
-    { name: "María González · Soja · 2025/2026", date: "10/05/2026", status: "Pendiente sync" },
-  ];
-  return (
-    <div style={s.safe}>
-      <div style={s.wizHeader}>
-        <button style={s.wizBack} onClick={onBack}>←</button>
-        <div style={s.wizTitle}>{icon} {title}</div>
-      </div>
-      <div style={s.content}>
-        {items.map((item, i) => (
-          <div key={i} style={{ ...s.lineaBlock, marginBottom: 8, flexDirection: "column", alignItems: "stretch" }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>{item.name}</div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-              <span style={{ fontSize: 12, color: "#888" }}>{item.date}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: item.status === "Completada" ? "#00A651" : "#F59E0B" }}>{item.status}</span>
+    <div style={{padding:18}}>
+
+      {/* PASO 0: CLIENTE */}
+      {step===0 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Tipo de cliente</div>
+        <div style={{display:"flex",gap:8,marginBottom:12}}>
+          <button style={S.tb(tipo==="soy_leader")} onClick={()=>{st("soy_leader");sf(null)}}>SOY LEADER</button>
+          <button style={S.tb(tipo==="cliente_base")} onClick={()=>{st("cliente_base");sf(null)}}>Cliente Base</button>
+        </div>
+
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>¿A quién visitás?</div>
+        {farmer
+          ? <div style={{background:"#fff",borderRadius:12,padding:14,display:"flex",alignItems:"center",justifyContent:"space-between",border:"1px solid #00A651",marginBottom:8}}>
+              <div>
+                <div style={{fontSize:15,fontWeight:600}}>{farmer.n}</div>
+                <div style={{fontSize:12,color:"#555",marginTop:2}}>{farmer.e} · {farmer.h} ha</div>
+              </div>
+              <button onClick={()=>sf(null)} style={{background:"none",border:"none",color:"#00A651",fontWeight:600,cursor:"pointer",fontSize:14}}>Cambiar</button>
             </div>
+          : <>
+              <input style={S.inp} placeholder="Buscar productor..." value={search} onChange={e=>sq(e.target.value)}/>
+              {ff.map(f=>
+                <div key={f.id} style={{background:"#fff",borderRadius:10,padding:14,marginBottom:8,boxShadow:"0 1px 3px rgba(0,0,0,.04)",cursor:"pointer"}} onClick={()=>sf(f)}>
+                  <div style={{fontSize:15,fontWeight:600}}>{f.n}
+                    <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:6,marginLeft:8,background:"#E8F5E9",color:"#00A651"}}>SOY LEADER</span>
+                  </div>
+                  <div style={{fontSize:12,color:"#555",marginTop:3}}>{f.e} · {f.d} · {f.h} ha</div>
+                  <div style={{display:"flex",gap:4,marginTop:6}}>
+                    {f.cu.map(c=><span key={c} style={{fontSize:10,background:"#f0f0f0",padding:"2px 8px",borderRadius:10,color:"#666"}}>{c}</span>)}
+                  </div>
+                </div>
+              )}
+            </>
+        }
+      </div>}
+
+      {/* PASO 1: CULTIVO + CAMPAÑA */}
+      {step===1 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Cultivo</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}}>
+          {["Soja","Trigo","Maíz","Canola"].map(c=><button key={c} style={S.ch(cult===c)} onClick={()=>sc(c)}>{c}</button>)}
+        </div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Campaña</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}}>
+          {["2024/2025","2025/2026","2026/2027"].map(c=><button key={c} style={S.ch(camp===c)} onClick={()=>sm(c)}>{c}</button>)}
+        </div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Fecha</div>
+        <div style={{background:"#fff",borderRadius:10,padding:14,border:"1px solid #e0e0e0"}}>
+          <div style={{fontSize:16,fontWeight:600}}>{dt}</div>
+          <div style={{fontSize:12,color:"#999",marginTop:2}}>Asignada automáticamente</div>
+        </div>
+      </div>}
+
+      {/* PASO 2: POSICIONAMIENTO */}
+      {step===2 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:4}}>Posicionamiento</div>
+        <div style={{fontSize:12,color:"#999",marginBottom:14}}>Productos Syngenta que fuiste a posicionar en esta visita.</div>
+        <input style={S.inp} placeholder="Buscar producto..." value={psq} onChange={e=>sps(e.target.value)}/>
+        <div style={{maxHeight:320,overflowY:"auto"}}>
+          {allP.filter(p=>p.toLowerCase().includes(psq.toLowerCase())).slice(0,15).map(p=>{
+            const sel=pos.includes(p);
+            return <div key={p} onClick={()=>sp(prev=>sel?prev.filter(x=>x!==p):[...prev,p])}
+              style={{...S.lb,marginBottom:6,...(sel?{borderColor:"#00A651",background:"#E8F5E9"}:{})}}>
+              <span style={{fontSize:14,fontWeight:600}}>{p}</span>
+              {sel && <span style={{color:"#00A651",fontWeight:700}}>✓</span>}
+            </div>
+          })}
+        </div>
+        {pos.length>0 && <div style={{marginTop:10,fontSize:12,color:"#00A651",fontWeight:600}}>
+          {pos.length} seleccionado{pos.length>1?"s":""}: {pos.join(", ")}
+        </div>}
+      </div>}
+
+      {/* PASO 3: CIERRES */}
+      {step===3 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:4}}>Cierres de Negocios</div>
+        <div style={{fontSize:12,color:"#999",marginBottom:14}}>¿El productor cerró compra en alguna línea?</div>
+        {["SC","HERB","INS"].map(l=>
+          <div key={l} style={{marginBottom:10}}>
+            <div style={S.lb} onClick={()=>sci(p=>({...p,[l]:{...p[l],on:!p[l].on}}))}>
+              <span style={{fontSize:15,fontWeight:600}}>{l==="HERB"?"Herbicidas":l==="INS"?"Insecticidas":"Semilleros"}</span>
+              <span style={S.bg(ci[l].on)}>{ci[l].on?"Cerrado ✓":"No"}</span>
+            </div>
+            {ci[l].on && <div style={{background:"#fff",padding:14,border:"1px solid #e0e0e0",borderTop:"none",borderRadius:"0 0 12px 12px"}}>
+              <div style={{display:"flex",gap:8,marginBottom:12}}>
+                <button style={S.tb(!ci[l].c)} onClick={()=>sci(p=>({...p,[l]:{...p[l],c:false}}))}>Syngenta</button>
+                <button style={S.tb(ci[l].c)} onClick={()=>sci(p=>({...p,[l]:{...p[l],c:true}}))}>Competencia</button>
+              </div>
+              {!ci[l].c
+                ? <select style={S.inp} value={ci[l].p} onChange={e=>sci(p=>({...p,[l]:{...p[l],p:e.target.value}}))}>
+                    <option value="">Seleccionar producto...</option>
+                    {(l==="SC"?P.SC:l==="HERB"?P.HERB:l==="INS"?P.INS:P.FUN).map(p=><option key={p}>{p}</option>)}
+                  </select>
+                : <input style={S.inp} placeholder="Nombre producto competencia..." value={ci[l].p} onChange={e=>sci(p=>({...p,[l]:{...p[l],p:e.target.value}}))}/>
+              }
+            </div>}
           </div>
-        ))}
+        )}
+      </div>}
+
+      {/* PASO 4: APLICACIONES */}
+      {step===4 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Aplicaciones</div>
+        {[["VEG","Aplic. Vegetativa (INS)"],["FUN1","Fungicida 1"],["FUN2","Fungicida 2"],["FUN3","Fungicida 3"]].map(([k,l])=>
+          <div key={k} style={{marginBottom:10}}>
+            <div style={S.lb} onClick={()=>sa(p=>({...p,[k]:!p[k]}))}>
+              <span style={{fontSize:15,fontWeight:600}}>{l}</span>
+              <span style={S.bg(ap[k])}>{ap[k]?"Sí":"No"}</span>
+            </div>
+            {ap[k] && <div style={{background:"#fff",padding:14,border:"1px solid #e0e0e0",borderTop:"none",borderRadius:"0 0 12px 12px"}}>
+              <select style={S.inp}>
+                <option>Seleccionar producto...</option>
+                {(k==="VEG"?P.INS:P.FUN).map(p=><option key={p}>{p}</option>)}
+              </select>
+            </div>}
+          </div>
+        )}
+        <div style={{...S.lb,marginTop:4}} onClick={()=>spl(!pl)}>
+          <span style={{fontSize:15,fontWeight:600}}>¿Tiene plaga?</span>
+          <span style={S.bg(pl)}>{pl?"Sí":"No"}</span>
+        </div>
+        {pl && <div style={{background:"#fff",padding:14,border:"1px solid #e0e0e0",borderTop:"none",borderRadius:"0 0 12px 12px"}}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+            {["Roya","Mancha ojo de rana","Antracnosis","Trips","Chinche","Mosca blanca","Pulgón","Otro"].map(p=>
+              <button key={p} style={S.ch(false)}>{p}</button>
+            )}
+          </div>
+        </div>}
+      </div>}
+
+      {/* PASO 5: FENOLOGÍA */}
+      {step===5 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Estadio fenológico</div>
+        {[["% Desecación","d"],["% Siembra","s"],["% Cosecha","c"]].map(([l,k])=>
+          <div key={k} style={{background:"#fff",borderRadius:12,padding:16,border:"1px solid #e0e0e0",marginBottom:14}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+              <span style={{fontSize:12,color:"#999"}}>{l}</span>
+              <span style={{fontSize:18,fontWeight:700,color:"#00A651"}}>{fe[k]}%</span>
+            </div>
+            <input type="range" min="0" max="100" step="10" value={fe[k]}
+              onChange={e=>sfe(p=>({...p,[k]:+e.target.value}))}
+              style={{width:"100%",accentColor:"#00A651"}}/>
+          </div>
+        )}
+        <div style={{background:"#fff",borderRadius:12,padding:16,border:"1px solid #e0e0e0"}}>
+          <div style={{fontSize:12,color:"#999",marginBottom:6}}>Promedio ton/ha</div>
+          <input style={{...S.inp,marginBottom:0}} type="number" placeholder="0" value={fe.t}
+            onChange={e=>sfe(p=>({...p,t:e.target.value}))}/>
+        </div>
+      </div>}
+
+      {/* PASO 6: NOTAS + FOTOS */}
+      {step===6 && <div>
+        <div style={{fontSize:15,fontWeight:700,marginBottom:10}}>Observaciones</div>
+        <textarea style={{width:"100%",padding:12,borderRadius:10,border:"1px solid #e0e0e0",fontSize:14,minHeight:120,resize:"vertical",outline:"none",fontFamily:"inherit",boxSizing:"border-box"}}
+          placeholder="Anotá cualquier observación relevante de la visita..."
+          value={no} onChange={e=>sno(e.target.value)}/>
+
+        <div style={{fontSize:15,fontWeight:700,marginTop:16,marginBottom:10}}>Fotos</div>
+        <div style={{background:"#fff",borderRadius:12,border:"2px dashed #e0e0e0",padding:30,textAlign:"center",color:"#bbb",fontSize:14}}>
+          📷 Tocar para agregar fotos<br/>
+          <span style={{fontSize:11}}>(Demo: función deshabilitada)</span>
+        </div>
+      </div>}
+
+      {/* Navegación */}
+      <div style={{display:"flex",gap:10,marginTop:24}}>
+        {step>0 && <button onClick={()=>ss(step-1)}
+          style={{flex:1,borderRadius:12,padding:14,textAlign:"center",fontSize:14,fontWeight:600,cursor:"pointer",border:"1px solid #e0e0e0",background:"#fff",color:"#555"}}>← Anterior</button>}
+        {step<6 && <button onClick={()=>cn()&&ss(step+1)}
+          style={{flex:1,borderRadius:12,padding:14,textAlign:"center",fontSize:14,fontWeight:700,cursor:"pointer",border:"none",background:cn()?"#00A651":"#aaa",color:"#fff"}}>Siguiente →</button>}
+        {step===6 && <button onClick={()=>sok(true)}
+          style={{flex:1,borderRadius:12,padding:14,textAlign:"center",fontSize:14,fontWeight:700,cursor:"pointer",border:"none",background:"#00A651",color:"#fff"}}>✓ Guardar visita</button>}
       </div>
-      <div style={s.demo}>Demo con datos ficticios — Syngenta Paraguay</div>
     </div>
-  );
+
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
 }
 
-function App() {
-  const [view, setView] = useState("home");
+/* ═══════════════════════════════════════
+   MIS PRODUCTORES
+   ═══════════════════════════════════════ */
+function Far({back}){
+  const[q,sq]=useState("");
+  const ff=FM.filter(f=>f.n.toLowerCase().includes(q.toLowerCase())||f.e.toLowerCase().includes(q.toLowerCase()));
 
-  if (view === "home") return <Home onNavigate={setView} />;
-  if (view === "new-visit") return <VisitWizard onBack={() => setView("home")} />;
-
-  const moduleMap = {
-    visits: ["Mis Visitas", "📋"],
-    farmers: ["Mis Productores", "👥"],
-    trainings: ["Charlas", "🎓"],
-    agenda: ["Agenda", "📅"],
-    monitoreos: ["Monitoreos", "🧪"],
-    eup: ["EUPs", "🌱"],
-  };
-  const [title, icon] = moduleMap[view] || ["Módulo", "📦"];
-  return <GenericModule title={title} icon={icon} onBack={() => setView("home")} />;
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+        <div>
+          <div style={S.ht}>Mis Productores</div>
+          <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:2}}>{FM.length} SOY LEADERS asignados</div>
+        </div>
+        <div style={{background:"rgba(255,255,255,.2)",padding:"6px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,.4)",color:"#fff",fontSize:13,fontWeight:700}}>+ Nuevo</div>
+      </div>
+    </div>
+    <div style={{padding:"12px 16px"}}>
+      <input style={{...S.inp,marginBottom:0}} placeholder="🔍 Buscar por nombre o establecimiento..." value={q} onChange={e=>sq(e.target.value)}/>
+    </div>
+    <div style={{padding:"8px 16px 16px",display:"flex",flexDirection:"column",gap:10}}>
+      <button style={{width:"100%",padding:10,borderRadius:10,border:"1px solid #1976D2",background:"#fff",color:"#1976D2",fontWeight:600,fontSize:14,cursor:"pointer"}}>
+        🌐 Buscar cliente en base global Syngenta
+      </button>
+      {ff.map(f=>
+        <div key={f.id} style={{background:"#fff",borderRadius:12,padding:16,boxShadow:"0 1px 4px rgba(0,0,0,.06)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontSize:15,fontWeight:600}}>{f.n}</span>
+            <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:6,background:"#E8F5E9",color:"#00A651"}}>SOY LEADER</span>
+          </div>
+          <div style={{fontSize:13,color:"#555"}}>{f.e}</div>
+          <div style={{fontSize:12,color:"#999"}}>{f.d} · {f.di} · {f.h} ha</div>
+          <div style={{display:"flex",gap:4,marginTop:8}}>
+            {f.cu.map(c=><span key={c} style={{fontSize:10,background:"#f0f0f0",padding:"2px 8px",borderRadius:10,color:"#666"}}>{c}</span>)}
+          </div>
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+/* ═══════════════════════════════════════
+   AGENDA
+   ═══════════════════════════════════════ */
+function Age({back}){
+  const V=[
+    {f:"Juan Benítez",fe:"2026-05-19T08:00",es:"pendiente",cu:"Soja",ca:"2025/2026"},
+    {f:"Roberto Schmalko",fe:"2026-05-19T10:30",es:"pendiente",cu:"Soja",ca:"2025/2026"},
+    {f:"Ana Villalba",fe:"2026-05-20T07:00",es:"pendiente",cu:"Trigo",ca:"2025/2026"},
+    {f:"Pedro Ramírez",fe:"2026-05-15T09:00",es:"completada",cu:"Soja",ca:"2025/2026"},
+    {f:"Diego Fernández",fe:"2026-05-13T11:00",es:"cancelada",cu:"Maíz",ca:"2025/2026"}
+  ];
+  const[fi,sfi]=useState("pendiente");
+  const EC={pendiente:"#F9A825",completada:"#00A651",cancelada:"#e53935"};
+  const fv=V.filter(v=>fi==="todas"||v.es===fi);
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={{...S.ht,textAlign:"center"}}>Agenda</div>
+    </div>
+    <div style={{display:"flex",gap:6,padding:"10px 16px",background:"#fff",borderBottom:"1px solid #f0f0f0",overflowX:"auto"}}>
+      {["pendiente","completada","cancelada","todas"].map(x=>
+        <button key={x} style={S.ch(fi===x)} onClick={()=>sfi(x)}>
+          {x.charAt(0).toUpperCase()+x.slice(1)}
+        </button>
+      )}
+    </div>
+    <div style={{padding:16,display:"flex",flexDirection:"column",gap:10}}>
+      <button style={S.green_btn}>+ Agendar Visita</button>
+      {fv.map((v,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:14,padding:16,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+            <div>
+              <div style={{fontSize:15,fontWeight:700}}>{v.f}</div>
+              <div style={{fontSize:12,color:"#777",marginTop:2}}>
+                {new Date(v.fe).toLocaleDateString("es-PY",{weekday:"short",day:"2-digit",month:"short"})}
+                {" · "}{new Date(v.fe).toLocaleTimeString("es-PY",{hour:"2-digit",minute:"2-digit"})}
+              </div>
+              <div style={{display:"flex",gap:6,marginTop:6}}>
+                <span style={{fontSize:10,background:"#E8F5E9",padding:"2px 8px",borderRadius:10,color:"#00A651",fontWeight:600,border:"1px solid #00A651"}}>{v.cu}</span>
+                <span style={{fontSize:10,color:"#999"}}>{v.ca}</span>
+              </div>
+            </div>
+            <span style={S.es(EC[v.es])}>{v.es}</span>
+          </div>
+          {v.es==="pendiente" && <div style={{display:"flex",gap:8,marginTop:8}}>
+            <button style={{background:"#00A651",color:"#fff",border:"none",padding:"6px 14px",borderRadius:20,fontSize:12,fontWeight:700,cursor:"pointer"}}>⚡ Registrar visita</button>
+            <button style={{background:"#f0f0f0",color:"#555",border:"none",padding:"6px 14px",borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer"}}>Cancelar</button>
+          </div>}
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   CHARLAS
+   ═══════════════════════════════════════ */
+function Cha({back}){
+  const T=[
+    {d:"TRANSAGRO S.A.",fe:"16/05/2026",t:"Lanzamiento MIRAVIS FORTE: posicionamiento y manejo integrado de roya en soja",a:12,no:"Buena recepción del equipo comercial. Pidieron muestras."},
+    {d:"LAR S.R.L.",fe:"10/05/2026",t:"Portafolio SC campaña 2026/27: FORTENZA + VIBRANCE INTEGRAL + MAXIM ADVANCED",a:8,no:null},
+    {d:"OLEAGINOSA RAATZ S.A.",fe:"05/05/2026",t:"Manejo de chinche en soja R3-R5 con KARATE ZEON y ENGEO PLENO",a:15,no:"Consultas sobre resistencia a piretroides. Destacar AMPLIGO."},
+    {d:"Coop. De Prod. Agrop. Pindo LTDA",fe:"28/04/2026",t:"CERATAVO + MAZEN: programa fungicida completo para soja",a:10,no:null}
+  ];
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={{...S.ht,textAlign:"center"}}>Charlas</div>
+    </div>
+    <div style={{padding:16,display:"flex",flexDirection:"column",gap:10}}>
+      <button style={S.green_btn}>+ Nueva Charla</button>
+      {T.map((t,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:14,padding:16,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+            <span style={{fontSize:13,fontWeight:700,color:"#00A651"}}>{t.d}</span>
+            <span style={{fontSize:12,color:"#999"}}>{t.fe}</span>
+          </div>
+          <div style={{fontSize:14,lineHeight:1.4,marginBottom:8}}>{t.t}</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:11,background:"#E8F5E9",padding:"2px 8px",borderRadius:10,color:"#00A651",fontWeight:600,border:"1px solid #00A651"}}>{t.a} asistentes</span>
+            {t.no && <span style={{fontSize:11,color:"#777"}}>{t.no}</span>}
+          </div>
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   MONITOREOS
+   ═══════════════════════════════════════ */
+function Mon({back}){
+  const M=[
+    {f:"Juan Benítez",p:"AMISTAR TOP 0.3 L/ha",fa:"20/04/2026",pm:"20/05/2026",e:"Pendiente",cu:"Soja"},
+    {f:"Roberto Schmalko",p:"PRIORI XTRA GOLD 0.4 L/ha",fa:"15/04/2026",pm:"15/05/2026",e:"Realizado",cu:"Soja"},
+    {f:"Ana Villalba",p:"KARATE ZEON 0.1 L/ha",fa:"25/04/2026",pm:"25/05/2026",e:"Pendiente",cu:"Soja"},
+    {f:"Pedro Ramírez",p:"CERATAVO 0.2 kg/ha + MAZEN FORTE 0.45 L/ha",fa:"10/04/2026",pm:"10/05/2026",e:"Realizado",cu:"Soja"}
+  ];
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={{...S.ht,textAlign:"center"}}>Monitoreos</div>
+    </div>
+    <div style={{padding:16,display:"flex",flexDirection:"column",gap:10}}>
+      <div style={{background:"#FFF8E1",border:"1px solid #F9A825",borderRadius:10,padding:12,fontSize:13,color:"#F57F17",fontWeight:600}}>
+        ⏰ 2 monitoreos post-aplicación pendientes esta semana
+      </div>
+      {M.map((m,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:14,padding:16,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:4}}>
+            <div style={{fontSize:15,fontWeight:700}}>{m.f}</div>
+            <span style={S.es(m.e==="Pendiente"?"#F9A825":"#00A651")}>{m.e}</span>
+          </div>
+          <div style={{fontSize:13,color:"#555",marginTop:4}}>Producto: <strong>{m.p}</strong></div>
+          <div style={{fontSize:12,color:"#999",marginTop:2}}>Cultivo: {m.cu}</div>
+          <div style={{fontSize:12,color:"#999",marginTop:2}}>Aplicado: {m.fa} · Monitoreo: {m.pm}</div>
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   EUPs
+   ═══════════════════════════════════════ */
+function Eup({back}){
+  const E=[
+    {f:"Pedro Ramírez",cu:"Soja",ca:"2025/2026",b:["🟢 PRIORI XTRA GOLD 0.4 L/ha","🔴 BASF Opera 0.5 L/ha","⚪ Testigo sin aplicar"],e:"En seguimiento",m:3,ha:2},
+    {f:"Juan Benítez",cu:"Soja",ca:"2025/2026",b:["🟢 MIRAVIS FORTE 0.9 L/ha","🔴 Corteva Vessarya 0.4 L/ha"],e:"Finalizado",m:5,ha:1.5}
+  ];
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={{...S.ht,textAlign:"center"}}>EUPs</div>
+    </div>
+    <div style={{padding:16,display:"flex",flexDirection:"column",gap:10}}>
+      <button style={S.green_btn}>+ Nuevo Ensayo</button>
+      <div style={{background:"#E3F2FD",border:"1px solid #1976D2",borderRadius:10,padding:12,fontSize:12,color:"#1565C0",lineHeight:1.5}}>
+        📍 Los EUPs generan coordenadas GPS al momento de crear el ensayo para trazabilidad completa.
+      </div>
+      {E.map((e,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:14,padding:16,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+            <div>
+              <div style={{fontSize:15,fontWeight:700}}>{e.f}</div>
+              <div style={{fontSize:12,color:"#999",marginTop:2}}>{e.cu} · {e.ca} · {e.ha} ha</div>
+            </div>
+            <span style={S.es(e.e==="En seguimiento"?"#F9A825":"#00A651")}>{e.e}</span>
+          </div>
+          <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:6,marginTop:8}}>Brazos comparativos:</div>
+          {e.b.map((b,j)=>
+            <div key={j} style={{fontSize:13,padding:"6px 0",borderBottom:j<e.b.length-1?"1px solid #f0f0f0":"none"}}>{b}</div>
+          )}
+          <div style={{fontSize:12,color:"#999",marginTop:10}}>{e.m} monitoreos registrados</div>
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   MIS VISITAS (historial)
+   ═══════════════════════════════════════ */
+function Vis({back}){
+  const V=[
+    {f:"Juan Benítez",cu:"Soja",fe:"16/05/2026",sy:true,pos:["CERATAVO","MAZEN FORTE"]},
+    {f:"Roberto Schmalko",cu:"Soja",fe:"15/05/2026",sy:true,pos:["PRIORI XTRA GOLD"]},
+    {f:"Ana Villalba",cu:"Trigo",fe:"14/05/2026",sy:true,pos:["BRAVONIL","TRINITY"]},
+    {f:"Pedro Ramírez",cu:"Soja",fe:"13/05/2026",sy:true,pos:["MIRAVIS FORTE","FORTENZA"]},
+    {f:"María González",cu:"Soja",fe:"12/05/2026",sy:false,pos:["VALIVIS"]},
+    {f:"Diego Fernández",cu:"Maíz",fe:"10/05/2026",sy:false,pos:["AMPLIGO","GESAPRIM"]}
+  ];
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}>
+      <button style={S.hb} onClick={back}>←</button>
+      <div style={{...S.ht,textAlign:"center"}}>Mis Visitas</div>
+    </div>
+    <div style={{padding:16,display:"flex",flexDirection:"column",gap:8}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+        <span style={{fontSize:13,color:"#999"}}>{V.length} visitas este mes</span>
+        <span style={{fontSize:12,color:"#F59E0B",fontWeight:600}}>{V.filter(v=>!v.sy).length} pendientes sync</span>
+      </div>
+      {V.map((v,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:12,padding:14,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontSize:14,fontWeight:600}}>{v.f}</span>
+            <span style={{fontSize:11,fontWeight:600,color:v.sy?"#00A651":"#F59E0B"}}>{v.sy?"✓ Sync":"⏳ Pendiente"}</span>
+          </div>
+          <div style={{fontSize:12,color:"#555",marginTop:3}}>{v.cu} · 2025/2026 · {v.fe}</div>
+          <div style={{display:"flex",gap:4,marginTop:6,flexWrap:"wrap"}}>
+            {v.pos.map(p=><span key={p} style={{fontSize:10,background:"#f0f0f0",padding:"2px 8px",borderRadius:10,color:"#666"}}>{p}</span>)}
+          </div>
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   APP ROUTER
+   ═══════════════════════════════════════ */
+function App(){
+  const[v,sv]=useState("home");
+  const routes={home:Home,wiz:Wiz,far:Far,age:Age,cha:Cha,mon:Mon,eup:Eup,vis:Vis};
+  const Comp=routes[v];
+  if(!Comp) return null;
+  const props=v==="home"?{go:sv}:{back:()=>sv("home")};
+  return <Comp {...props}/>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
