@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PDI | Syngenta PY</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#e8e8e8}#root{max-width:430px;margin:0 auto;min-height:100vh;background:#f5f5f5;position:relative;border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0}input,select,textarea{font-family:inherit}::-webkit-scrollbar{display:none}.fade-in{animation:fadeIn .3s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState}=React;
+
+/* ══════════════════════════════════════
+   DATOS
+   ══════════════════════════════════════ */
+const PLAN={
+  nombre:"Campaña Soja 2025/2026",
+  inicio:"01/09/2025",
+  fin:"28/02/2026",
+  estado:"Activo"
+};
+
+const PRODS_PLAN=[
+  {n:"AMISTAR TOP",l:"FUN",usd_l:1.20,um:"L"},
+  {n:"PRIORI XTRA GOLD",l:"FUN",usd_l:1.50,um:"L"},
+  {n:"MIRAVIS FORTE",l:"FUN",usd_l:1.80,um:"L"},
+  {n:"CERATAVO",l:"FUN",usd_l:2.00,um:"kg"},
+  {n:"MAZEN FORTE",l:"FUN",usd_l:1.40,um:"L"},
+  {n:"CYPRESS",l:"FUN",usd_l:0.90,um:"L"},
+  {n:"ENGEO",l:"INS",usd_l:1.10,um:"L"},
+  {n:"KARATE ZEON",l:"INS",usd_l:0.80,um:"L"},
+  {n:"AMPLIGO",l:"INS",usd_l:1.60,um:"L"},
+  {n:"FORTENZA",l:"SC",usd_l:3.50,um:"L"},
+  {n:"VIBRANCE INTEGRAL",l:"SC",usd_l:2.80,um:"L"},
+  {n:"CRUISER",l:"SC",usd_l:1.20,um:"L"},
+  {n:"DUAL GOLD",l:"HERB",usd_l:0.70,um:"L"},
+  {n:"FLEX",l:"HERB",usd_l:0.60,um:"L"},
+];
+
+const MI_AVANCE=[
+  {prod:"AMISTAR TOP",litros:320,usd_l:1.20},
+  {prod:"PRIORI XTRA GOLD",litros:180,usd_l:1.50},
+  {prod:"MIRAVIS FORTE",litros:95,usd_l:1.80},
+  {prod:"ENGEO",litros:410,usd_l:1.10},
+  {prod:"KARATE ZEON",litros:280,usd_l:0.80},
+  {prod:"FORTENZA",litros:45,usd_l:3.50},
+  {prod:"CRUISER",litros:520,usd_l:1.20},
+  {prod:"DUAL GOLD",litros:680,usd_l:0.70},
+];
+
+const VENDEDORES=[
+  {n:"Carlos Méndez",ds:"TRANSAGRO S.A.",usd:2847,litros:3200},
+  {n:"Laura Giménez",ds:"LAR S.R.L.",usd:2510,litros:2890},
+  {n:"Roberto Flores",ds:"OLEAGINOSA RAATZ S.A.",usd:2205,litros:2650},
+  {n:"Ana Benítez",ds:"AGRO SUSIK S.A.",usd:1980,litros:2400},
+  {n:"Miguel Ortiz",ds:"Coop. Pindo LTDA",usd:1820,litros:2180},
+  {n:"Patricia Romero",ds:"OVETRIL S.A.",usd:1650,litros:1950},
+  {n:"Diego Cantero",ds:"GRUPO APANE S.A.",usd:1420,litros:1700},
+  {n:"Sofía Duarte",ds:"AGRO PANAMBI S.A.",usd:1180,litros:1480},
+  {n:"Fernando Acosta",ds:"C.A.S. S.R.L.",usd:980,litros:1200},
+  {n:"Marcela Insfrán",ds:"COOP. COOPASAM LTDA.",usd:750,litros:940},
+];
+
+const OPORTUNIDADES=[
+  {tipo:"recompra",cliente:"Agropecuaria San Jorge",contacto:"Juan Paredes",wa:"+595981234567",compro_antes:"AMISTAR TOP (240L)",sugerido:"AMISTAR TOP",litros_est:240,usd_est:288,prob:85},
+  {tipo:"recompra",cliente:"Estancia La Fortuna",contacto:"María Galeano",wa:null,compro_antes:"ENGEO (180L) + CRUISER (100L)",sugerido:"ENGEO + CRUISER",litros_est:280,usd_est:428,prob:78},
+  {tipo:"recompra",cliente:"Campo Verde SRL",contacto:"Pedro Villalba",wa:"+595971555888",compro_antes:"FORTENZA (30L)",sugerido:"FORTENZA",litros_est:30,usd_est:105,prob:72},
+  {tipo:"recompra",cliente:"Granja El Porvenir",contacto:"Roberto Díaz",wa:null,compro_antes:"DUAL GOLD (500L)",sugerido:"DUAL GOLD",litros_est:500,usd_est:350,prob:90},
+  {tipo:"cross",cliente:"Agropecuaria San Jorge",contacto:"Juan Paredes",wa:"+595981234567",compra_actual:"Solo FUN (AMISTAR TOP)",sugerido:"ENGEO (INS)",litros_est:150,usd_est:165,prob:65},
+  {tipo:"cross",cliente:"Cooperativa Naranjal",contacto:"Luis Benítez",wa:"+595982777444",compra_actual:"Solo SC (CRUISER + FORTENZA)",sugerido:"MIRAVIS FORTE (FUN)",litros_est:80,usd_est:144,prob:60},
+  {tipo:"cross",cliente:"Estancia La Fortuna",contacto:"María Galeano",wa:null,compra_actual:"INS + SC, no compra FUN",sugerido:"PRIORI XTRA GOLD (FUN)",litros_est:120,usd_est:180,prob:55},
+  {tipo:"cross",cliente:"Campo Norte SA",contacto:"Diego Fernández",wa:null,compra_actual:"Solo HERB (DUAL GOLD)",sugerido:"KARATE ZEON (INS)",litros_est:200,usd_est:160,prob:58},
+];
+
+/* ══════════════════════════════════════
+   STYLES
+   ══════════════════════════════════════ */
+const S={
+  inp:{width:"100%",padding:"12px 14px",borderRadius:10,border:"1px solid #e0e0e0",fontSize:14,outline:"none",background:"#fff",boxSizing:"border-box"},
+  ch:a=>({padding:"8px 14px",borderRadius:20,border:a?"1px solid #009F3C":"1px solid #e0e0e0",background:a?"#E8F5E9":"#fff",cursor:"pointer",fontSize:13,color:a?"#009F3C":"#555",fontWeight:a?600:400}),
+  hd:{background:"linear-gradient(135deg, #009F3C 0%, #00C853 100%)",paddingTop:52,paddingBottom:14,paddingLeft:20,paddingRight:20},
+  ht:{fontSize:20,fontWeight:700,color:"#fff"},
+  hb:{background:"none",border:"none",color:"rgba(255,255,255,.85)",fontSize:22,cursor:"pointer",marginBottom:6,padding:0},
+  dm:{textAlign:"center",padding:20,color:"#bbb",fontSize:11},
+  gb:{width:"100%",background:"#009F3C",color:"#fff",border:"none",borderRadius:12,padding:14,fontWeight:700,fontSize:14,cursor:"pointer"},
+};
+
+function td(){return new Date().toLocaleDateString("es-PY",{weekday:"long",day:"numeric",month:"long"})}
+function pct(v,t){return Math.min(100,Math.round(v/t*100))}
+
+/* ═══════════════════════════════════════
+   HOME
+   ═══════════════════════════════════════ */
+function Home({go}){
+  const totalUsd=MI_AVANCE.reduce((a,p)=>a+p.litros*p.usd_l,0);
+  const items=[
+    {l:"Mi Avance",s:"USD generados por producto",i:"📈",c:"#009F3C",r:"avance"},
+    {l:"Simulador",s:"Litros → USD que generarías",i:"🧮",c:"#F59E0B",r:"sim"},
+    {l:"Oportunidades",s:"Recompra y cross-sell (ML)",i:"🎯",c:"#8B5CF6",r:"oport"},
+    {l:"Panel Admin",s:"Ranking y avance general",i:"👑",c:"#3B82F6",r:"admin"},
+  ];
+  return <div style={{minHeight:"100vh",background:"#f5f5f5",paddingBottom:40}}>
+    <div style={{padding:20,paddingTop:16}}>
+      <div style={{background:"linear-gradient(135deg, #009F3C 0%, #00C853 100%)",margin:"-16px -20px 20px",padding:"20px 20px 16px",borderRadius:"0 0 20px 20px"}}>
+        <div style={{fontSize:22,fontWeight:700,color:"#fff"}}>Plan de Incentivo 💰</div>
+        <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginTop:4}}>{PLAN.nombre}</div>
+        <div style={{background:"rgba(255,255,255,.15)",borderRadius:12,padding:14,marginTop:12}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <span style={{fontSize:12,color:"rgba(255,255,255,.7)"}}>Tu incentivo acumulado</span>
+            <span style={{fontSize:11,background:"rgba(255,255,255,.25)",padding:"2px 10px",borderRadius:10,color:"#fff",fontWeight:600}}>{PLAN.estado}</span>
+          </div>
+          <div style={{fontSize:32,fontWeight:700,color:"#fff"}}>USD {totalUsd.toLocaleString("en",{minimumFractionDigits:0})}</div>
+          <div style={{background:"rgba(255,255,255,.2)",borderRadius:6,height:8,marginTop:8}}>
+            <div style={{background:"#fff",borderRadius:6,height:8,width:pct(totalUsd,5000)+"%"}}/>
+          </div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,.6)",marginTop:4}}>Meta: USD 5,000 · {pct(totalUsd,5000)}% alcanzado</div>
+        </div>
+      </div>
+
+      {items.map(m=>
+        <button key={m.r} onClick={()=>go(m.r)} style={{background:"#fff",borderRadius:14,padding:14,display:"flex",flexDirection:"row",alignItems:"center",marginBottom:10,boxShadow:"0 1px 4px rgba(0,0,0,.06)",cursor:"pointer",border:"none",width:"100%",textAlign:"left"}}>
+          <div style={{width:46,height:46,borderRadius:13,display:"flex",alignItems:"center",justifyContent:"center",marginRight:14,fontSize:22,background:m.c+"18"}}>{m.i}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:15,fontWeight:700,color:"#1a1a1a"}}>{m.l}</div>
+            <div style={{fontSize:12,color:"#888",marginTop:2}}>{m.s}</div>
+          </div>
+          <span style={{color:"#ccc",fontSize:16}}>›</span>
+        </button>
+      )}
+      <div style={S.dm}>PDI — Demo con datos ficticios — Syngenta Paraguay</div>
+    </div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   MI AVANCE
+   ═══════════════════════════════════════ */
+function Avance({back}){
+  const totalUsd=MI_AVANCE.reduce((a,p)=>a+p.litros*p.usd_l,0);
+  const totalLitros=MI_AVANCE.reduce((a,p)=>a+p.litros,0);
+  const sorted=[...MI_AVANCE].sort((a,b)=>(b.litros*b.usd_l)-(a.litros*a.usd_l));
+  const maxUsd=sorted[0].litros*sorted[0].usd_l;
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Mi Avance</div></div>
+    <div style={{padding:16}}>
+      {/* Resumen */}
+      <div style={{background:"#fff",borderRadius:14,padding:16,border:"1px solid #e0e0e0",marginBottom:12}}>
+        <div style={{fontSize:12,color:"#999",marginBottom:4}}>{PLAN.nombre}</div>
+        <div style={{display:"flex",gap:12}}>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:10,color:"#999"}}>USD generados</div>
+            <div style={{fontSize:24,fontWeight:700,color:"#009F3C"}}>USD {totalUsd.toLocaleString("en",{minimumFractionDigits:0})}</div>
+          </div>
+          <div style={{flex:1,textAlign:"center"}}>
+            <div style={{fontSize:10,color:"#999"}}>Litros vendidos</div>
+            <div style={{fontSize:24,fontWeight:700,color:"#1a1a1a"}}>{totalLitros.toLocaleString()}</div>
+          </div>
+        </div>
+        <div style={{background:"#f0f0f0",borderRadius:6,height:10,marginTop:12}}>
+          <div style={{background:"linear-gradient(90deg, #009F3C, #00C853)",borderRadius:6,height:10,width:pct(totalUsd,5000)+"%"}}/>
+        </div>
+        <div style={{fontSize:11,color:"#999",marginTop:4,textAlign:"right"}}>Meta: USD 5,000 · {pct(totalUsd,5000)}%</div>
+      </div>
+
+      {/* Por producto */}
+      <div style={{fontSize:13,fontWeight:700,color:"#1a1a1a",marginBottom:8}}>Detalle por producto</div>
+      {sorted.map((p,i)=>{
+        const usd=p.litros*p.usd_l;
+        return <div key={p.prod} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:8,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+            <div>
+              <div style={{fontSize:14,fontWeight:700}}>{p.prod}</div>
+              <div style={{fontSize:11,color:"#999"}}>{p.litros} L vendidos × USD {p.usd_l}/L</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:16,fontWeight:700,color:"#009F3C"}}>USD {usd.toFixed(0)}</div>
+            </div>
+          </div>
+          <div style={{background:"#f0f0f0",borderRadius:4,height:6}}>
+            <div style={{background:"#009F3C",borderRadius:4,height:6,width:(usd/maxUsd*100)+"%"}}/>
+          </div>
+        </div>
+      })}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   SIMULADOR
+   ═══════════════════════════════════════ */
+function Sim({back}){
+  const[sims,setSims]=useState({});
+  const total=Object.entries(sims).reduce((a,[prod,litros])=>{
+    const p=PRODS_PLAN.find(x=>x.n===prod);
+    return a+(p?(parseFloat(litros||0)*p.usd_l):0);
+  },0);
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Simulador</div></div>
+    <div style={{padding:16}}>
+      <div style={{background:"#FFF8E1",border:"1px solid #F59E0B",borderRadius:10,padding:12,fontSize:13,color:"#F57F17",marginBottom:14}}>
+        💡 Ingresá los litros que pensás vender y mirá cuánto generarías en incentivo.
+      </div>
+
+      {PRODS_PLAN.map(p=>
+        <div key={p.n} style={{background:"#fff",borderRadius:10,padding:12,marginBottom:6,border:"1px solid #e0e0e0",display:"flex",alignItems:"center",gap:10}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13,fontWeight:700}}>{p.n}</div>
+            <div style={{fontSize:10,color:"#999"}}>{p.l} · USD {p.usd_l}/{p.um}</div>
+          </div>
+          <input
+            style={{width:70,padding:"8px 10px",borderRadius:8,border:"1px solid #e0e0e0",fontSize:14,fontWeight:700,textAlign:"center",outline:"none"}}
+            type="number" placeholder="0"
+            value={sims[p.n]||""}
+            onChange={e=>setSims(prev=>({...prev,[p.n]:e.target.value}))}
+          />
+          <div style={{width:70,textAlign:"right"}}>
+            <div style={{fontSize:13,fontWeight:700,color:"#009F3C"}}>
+              {sims[p.n]?("$"+(parseFloat(sims[p.n])*p.usd_l).toFixed(0)):"—"}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {total>0 && <div className="fade-in" style={{background:"linear-gradient(135deg, #009F3C, #00C853)",borderRadius:14,padding:20,textAlign:"center",marginTop:16}}>
+        <div style={{fontSize:12,color:"rgba(255,255,255,.7)"}}>Incentivo estimado total</div>
+        <div style={{fontSize:36,fontWeight:700,color:"#fff",marginTop:4}}>USD {total.toFixed(0)}</div>
+        <div style={{fontSize:12,color:"rgba(255,255,255,.6)",marginTop:4}}>
+          {Object.entries(sims).filter(([,v])=>v&&parseFloat(v)>0).length} productos · {Object.values(sims).reduce((a,v)=>a+parseFloat(v||0),0).toLocaleString()} litros
+        </div>
+      </div>}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   OPORTUNIDADES (ML)
+   ═══════════════════════════════════════ */
+function Oport({back}){
+  const[tab,st]=useState("recompra");
+  const filtered=OPORTUNIDADES.filter(o=>o.tipo===tab);
+  const totalUsd=filtered.reduce((a,o)=>a+o.usd_est,0);
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Oportunidades 🎯</div></div>
+    <div style={{display:"flex",gap:0,background:"#fff",borderBottom:"1px solid #f0f0f0"}}>
+      {[["recompra","🔄 Recompra"],["cross","🔀 Cross-sell"]].map(([k,l])=>
+        <button key={k} onClick={()=>st(k)} style={{flex:1,padding:12,border:"none",background:tab===k?"#E8F5E9":"#fff",color:tab===k?"#009F3C":"#999",fontWeight:tab===k?700:400,fontSize:13,cursor:"pointer",borderBottom:tab===k?"2px solid #009F3C":"2px solid transparent"}}>{l}</button>
+      )}
+    </div>
+    <div style={{padding:16}}>
+      <div style={{background:"#EDE7F6",border:"1px solid #8B5CF6",borderRadius:10,padding:12,fontSize:12,color:"#6D28D9",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span>🤖 Modelo ML · {filtered.length} oportunidades detectadas</span>
+        <span style={{fontWeight:700}}>USD {totalUsd.toLocaleString()}</span>
+      </div>
+
+      {filtered.map((o,i)=>
+        <div key={i} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:10,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+            <div>
+              <div style={{fontSize:14,fontWeight:700,color:"#1a1a1a"}}>{o.cliente}</div>
+              <div style={{fontSize:12,color:"#555",marginTop:2}}>{o.contacto}</div>
+            </div>
+            <div style={{background:"#EDE7F6",padding:"4px 10px",borderRadius:20,fontSize:11,fontWeight:700,color:"#8B5CF6"}}>{o.prob}% prob.</div>
+          </div>
+
+          {o.tipo==="recompra"
+            ? <div style={{fontSize:12,color:"#777",marginBottom:8}}>
+                Compró la campaña pasada: <strong>{o.compro_antes}</strong>
+              </div>
+            : <div style={{fontSize:12,color:"#777",marginBottom:8}}>
+                Compra actual: <strong>{o.compra_actual}</strong>
+              </div>
+          }
+
+          <div style={{background:"#f9f9f9",borderRadius:8,padding:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div>
+              <div style={{fontSize:11,color:"#999"}}>Producto sugerido</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#009F3C"}}>{o.sugerido}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:11,color:"#999"}}>{o.litros_est} L estimados</div>
+              <div style={{fontSize:16,fontWeight:700,color:"#009F3C"}}>USD {o.usd_est}</div>
+            </div>
+          </div>
+
+          {o.wa
+            ? <a href={"https://wa.me/"+o.wa.replace("+","")} target="_blank" style={{display:"block",width:"100%",background:"#25D366",color:"#fff",border:"none",borderRadius:8,padding:10,fontWeight:600,fontSize:13,cursor:"pointer",marginTop:8,textAlign:"center",textDecoration:"none"}}>
+                <span style={{marginRight:6}}>📱</span> WhatsApp · {o.contacto}
+              </a>
+            : <div style={{width:"100%",background:"#f0f0f0",color:"#999",borderRadius:8,padding:10,fontSize:12,marginTop:8,textAlign:"center"}}>
+                📞 {o.contacto} · Sin WhatsApp registrado
+              </div>
+          }
+        </div>
+      )}
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   PANEL ADMIN
+   ═══════════════════════════════════════ */
+function Admin({back}){
+  const totalUsd=VENDEDORES.reduce((a,v)=>a+v.usd,0);
+  const totalLitros=VENDEDORES.reduce((a,v)=>a+v.litros,0);
+
+  return <div style={{minHeight:"100vh",background:"#f5f5f5"}}>
+    <div style={S.hd}><button style={S.hb} onClick={back}>←</button><div style={{...S.ht,textAlign:"center"}}>Panel Admin</div></div>
+    <div style={{padding:16}}>
+      {/* KPIs */}
+      <div style={{display:"flex",gap:8,marginBottom:14}}>
+        <div style={{flex:1,background:"#fff",borderRadius:12,padding:14,textAlign:"center",border:"1px solid #e0e0e0"}}>
+          <div style={{fontSize:10,color:"#999"}}>Incentivo total pagado</div>
+          <div style={{fontSize:20,fontWeight:700,color:"#009F3C"}}>USD {totalUsd.toLocaleString()}</div>
+        </div>
+        <div style={{flex:1,background:"#fff",borderRadius:12,padding:14,textAlign:"center",border:"1px solid #e0e0e0"}}>
+          <div style={{fontSize:10,color:"#999"}}>Litros totales</div>
+          <div style={{fontSize:20,fontWeight:700,color:"#1a1a1a"}}>{totalLitros.toLocaleString()}</div>
+        </div>
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:14}}>
+        <div style={{flex:1,background:"#fff",borderRadius:12,padding:14,textAlign:"center",border:"1px solid #e0e0e0"}}>
+          <div style={{fontSize:10,color:"#999"}}>Vendedores activos</div>
+          <div style={{fontSize:20,fontWeight:700,color:"#3B82F6"}}>{VENDEDORES.length}</div>
+        </div>
+        <div style={{flex:1,background:"#fff",borderRadius:12,padding:14,textAlign:"center",border:"1px solid #e0e0e0"}}>
+          <div style={{fontSize:10,color:"#999"}}>Plan activo</div>
+          <div style={{fontSize:12,fontWeight:700,color:"#1a1a1a",marginTop:4}}>{PLAN.nombre}</div>
+        </div>
+      </div>
+
+      {/* Ranking */}
+      <div style={{fontSize:13,fontWeight:700,color:"#1a1a1a",marginBottom:8}}>Ranking de vendedores</div>
+      {VENDEDORES.map((v,i)=>{
+        const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+        const barW=pct(v.usd,VENDEDORES[0].usd);
+        return <div key={v.n} style={{background:"#fff",borderRadius:12,padding:14,marginBottom:6,border:"1px solid #e0e0e0"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:16,width:28,textAlign:"center"}}>{medal||<span style={{fontSize:12,color:"#999",fontWeight:700}}>#{i+1}</span>}</span>
+              <div>
+                <div style={{fontSize:14,fontWeight:700}}>{v.n}</div>
+                <div style={{fontSize:11,color:"#999"}}>{v.ds}</div>
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:15,fontWeight:700,color:"#009F3C"}}>USD {v.usd.toLocaleString()}</div>
+              <div style={{fontSize:10,color:"#999"}}>{v.litros.toLocaleString()} L</div>
+            </div>
+          </div>
+          <div style={{background:"#f0f0f0",borderRadius:4,height:5}}>
+            <div style={{background:i<3?"#009F3C":"#e0e0e0",borderRadius:4,height:5,width:barW+"%"}}/>
+          </div>
+        </div>
+      })}
+
+      {/* Gestión */}
+      <div style={{marginTop:16}}>
+        <button style={{...S.gb,background:"#3B82F6",marginBottom:8}}>⚙️ Gestionar planes</button>
+        <button style={{...S.gb,background:"#8B5CF6"}}>📊 Exportar reporte</button>
+      </div>
+    </div>
+    <div style={S.dm}>Demo — Syngenta Paraguay</div>
+  </div>;
+}
+
+/* ═══════════════════════════════════════
+   APP ROUTER
+   ═══════════════════════════════════════ */
+function App(){
+  const[v,sv]=useState("home");
+  const routes={home:Home,avance:Avance,sim:Sim,oport:Oport,admin:Admin};
+  const Comp=routes[v];
+  if(!Comp) return null;
+  const props=v==="home"?{go:sv}:{back:()=>sv("home")};
+  return <Comp {...props}/>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
