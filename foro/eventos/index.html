@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Día de Campo Soja · Demo</title>
+    <!-- Tailwind CSS (framework CSS responsive) -->
+    <link rel="stylesheet" href="tw.css">
+    <!-- Alpine.js (reactividad simple) -->
+    <script defer src="alpine.min.js"></script>
+    <style>
+        /* Animaciones personalizadas */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen">
+<script>
+/* DEMO: sin backend. Simula /api/attendee y /api/checkin con datos ficticios. */
+(function(){const rf=window.fetch.bind(window);const J=(o,st=200)=>Promise.resolve(new Response(JSON.stringify(o),{status:st,headers:{"Content-Type":"application/json"}}));
+window.fetch=function(u,o){u=String(u);
+ if(u.startsWith('/api/attendee/')){const ced=decodeURIComponent(u.split('/api/attendee/')[1].split('?')[0]);
+  return new Promise(r=>setTimeout(r,400)).then(()=>ced.endsWith('0')?J({found:false}):J({found:true,source:'checkin',data:{nombre:'Juan',apellido:'Ejemplo',cargo:'productor',empresa:'',departamento:'Alto Paraná',distrito:'Santa Rita',hectareas:'800',email_masked:'j•••@ejemplo.com',whatsapp_masked:'9•• ••• 321'}}));}
+ if(u.startsWith('/api/checkin'))return new Promise(r=>setTimeout(r,600)).then(()=>J({ok:true}));
+ return rf(u,o)};})();
+</script>
+<div style="background:#FEF3C7;color:#92400E;font:600 11px/1.4 system-ui;text-align:center;padding:6px;letter-spacing:.04em">DEMO · datos ficticios · no se guarda nada. Probá con cualquier cédula (terminada en 0 = asistente nuevo)</div>
+
+    <div class="container mx-auto px-4 py-8" x-data="checkinForm()">
+        <!-- Header -->
+        <div class="max-w-md mx-auto mb-6 text-center fade-in">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+                <!-- Logo Syngenta -->
+                <div class="mb-4">
+                    <img src="syngenta-logo.png" 
+                        alt="Syngenta" 
+                        class="h-16 mx-auto">
+                </div>
+                <div class="text-green-600 mb-2">
+                    <svg class="w-8 h-8 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">Día de Campo Soja · Demo</h1>
+                <p class="text-gray-600 mt-2">
+                    <span class="font-semibold">📍 Campo experimental · Santa Rita</span>
+                </p>
+                <p class="text-sm text-gray-500 mt-1">
+                    14/11/2026 08:30
+                </p>
+            </div>
+        </div>
+        <!-- Modal Reglas Syngenta 365 -->
+        <div x-show="esSyngenta365 && !reglasAceptadas" class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 fade-in mb-6">
+            <div class="text-center mb-4">
+                <img src="syngenta-logo.png" alt="Syngenta 365" class="h-12 mx-auto mb-4">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Indicaciones importantes</h2>
+                <p class="text-sm text-gray-500">Antes de continuar, leé las siguientes reglas del lugar</p>
+            </div>
+
+            <div class="bg-gradient-to-b from-green-700 to-green-500 rounded-lg p-6 text-white mb-4">
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold">•</span>
+                        <span>Permanecer siempre acompañado de un guía durante el recorrido.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold">•</span>
+                        <span>Transitar por las zonas demarcadas.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold">•</span>
+                        <span>Utilizar Equipos de Protección Personal para visitar las áreas de campo:</span>
+                    </li>
+                </ul>
+                <ol class="mt-2 ml-6 space-y-1 text-sm">
+                    <li>1- Zapato cerrado.</li>
+                    <li>2- Piernera.</li>
+                    <li>3- Sombrero.</li>
+                    <li>4- Lentes de seguridad.</li>
+                </ol>
+            </div>
+
+            <div class="flex justify-around text-center text-xs text-gray-600 mb-6">
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-2xl">🚫🍔</span>
+                    <span>PROHIBIDO<br>ALIMENTOS</span>
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-2xl">🚫🔫</span>
+                    <span>PROHIBIDO<br>PORTAR ARMAS</span>
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-2xl">🚫🚬</span>
+                    <span>PROHIBIDO<br>FUMAR</span>
+                </div>
+            </div>
+
+            <button 
+                @click="reglasAceptadas = true"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+                Acepto las indicaciones
+            </button>
+        </div>
+
+        <!-- Formulario -->
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 fade-in" x-show="!esSyngenta365 || reglasAceptadas">
+            <!-- Mensaje de éxito -->
+            <div x-show="success" x-transition class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <p class="font-bold">✅ ¡Registro exitoso!</p>
+                <p class="text-sm">Gracias por registrarte en el evento.</p>
+            </div>
+            <!-- Mensaje de error -->
+            <div x-show="error" x-transition class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p class="font-bold">❌ Error</p>
+                <p class="text-sm" x-text="errorMessage"></p>
+            </div>
+            <form @submit.prevent="submitForm" x-ref="checkinForm" x-show="!success">
+                
+                <!-- Mensaje cuando se recuperan datos -->
+                <div x-show="showSuccessMessage" 
+                     x-transition 
+                     class="mb-4 bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="font-bold">¡Te reconocimos!</p>
+                            <p class="text-sm">Completamos el formulario con tus datos de un evento anterior. Revisá que todo esté bien antes de enviar.</p>
+                            <p class="text-sm mt-1" x-show="emailMasked || whatsappMasked">Por seguridad, tu email y WhatsApp se muestran ocultos. Si cambiaron, tocá "Cambiar".</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cédula -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Cédula <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text"
+                        inputmode="numeric" 
+                        x-model="formData.cedula"
+                        @input.debounce.500ms="autocomplete"
+                        placeholder="1234567"
+                        pattern="\d{1,10}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required
+                        :disabled="loading"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Ingresá tu número de cédula</p>
+                    <!-- Mensaje cuando no se encuentra en RUC -->
+                    <div x-show="!rucEncontrado && formData.cedula.length > 0" x-transition class="mt-2 bg-yellow-50 border border-yellow-300 text-yellow-800 px-3 py-2 rounded text-sm">
+                        ℹ️ Cédula no encontrada. Completá nombre y apellido manualmente.
+                    </div>
+                </div>
+                <!-- Nombre (autocompletado) -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Nombre <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        x-model="formData.nombre"
+                        :readonly="rucEncontrado"
+                        :class="rucEncontrado ? 'bg-gray-100' : 'bg-white'"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        :placeholder="rucEncontrado ? 'Se completó automáticamente' : 'Ingresá tu nombre manualmente'"
+                        required
+                    >
+                </div>
+                <!-- Apellido (autocompletado) -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Apellido <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        x-model="formData.apellido"
+                        :readonly="rucEncontrado"
+                        :class="rucEncontrado ? 'bg-gray-100' : 'bg-white'"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        :placeholder="rucEncontrado ? 'Se completó automáticamente' : 'Ingresá tu apellido manualmente'"
+                        required
+                    >
+                </div>
+
+                <!-- Cargo -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Cargo <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                        x-model="formData.cargo"
+                        @change="updateFieldsVisibility"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                        required
+                        :disabled="loading"
+                    >
+                        <option value="">Seleccionar...</option>
+                        <option value="productor">Productor</option>
+                        <option value="consultor_tecnico">Consultor Técnico</option>
+                        <option value="vendedor">Vendedor</option>
+                        <option value="gerente">Gerente</option>
+                    </select>
+                </div>
+                <!-- Empresa (solo si NO es productor) -->
+                <div class="mb-4" x-show="formData.cargo && formData.cargo !== 'productor'" x-transition>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Empresa <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        x-model="formData.empresa"
+                        placeholder="Nombre de la empresa"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        :required="formData.cargo && formData.cargo !== 'productor'"
+                        :disabled="loading"
+                    >
+                </div>
+                <!-- Email (opcional) -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Email <span class="text-gray-400">(opcional)</span>
+                    </label>
+                    <div x-show="emailMasked" class="flex items-center gap-2">
+                        <span class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" x-text="emailMaskedValue"></span>
+                        <button type="button" @click="unmaskEmail()" class="px-3 py-2 text-sm font-medium text-green-700 border border-green-600 rounded-lg hover:bg-green-50">Cambiar</button>
+                    </div>
+                    <input 
+                        x-show="!emailMasked"
+                        type="email" 
+                        x-model="formData.email"
+                        placeholder="tu@email.com"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        :disabled="loading || emailMasked"
+                    >
+                </div>
+                <!-- Departamento -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Departamento <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                        x-model="formData.departamento"
+                        @change="updateDistritos"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                        required
+                        :disabled="loading"
+                    >
+                        <option value="">Seleccionar...</option>
+                        <template x-for="dept in Object.keys(distritosData)" :key="dept">
+                            <option :value="dept" x-text="dept"></option>
+                        </template>
+                    </select>
+                </div>
+                <!-- Distrito -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Distrito <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                        x-model="formData.distrito"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                        required
+                        :disabled="!formData.departamento || loading"
+                    >
+                        <option value="">Seleccionar...</option>
+                        <template x-for="dist in distritos" :key="dist">
+                            <option :value="dist" x-text="dist"></option>
+                        </template>
+                    </select>
+                </div>
+                <!-- WhatsApp -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        WhatsApp <span class="text-red-500">*</span>
+                    </label>
+                    <div x-show="whatsappMasked" class="flex items-center gap-2">
+                        <span class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" x-text="'+595 ' + whatsappMaskedValue"></span>
+                        <button type="button" @click="unmaskWhatsapp()" class="px-3 py-2 text-sm font-medium text-green-700 border border-green-600 rounded-lg hover:bg-green-50">Cambiar</button>
+                    </div>
+                    <div class="flex items-stretch" x-show="!whatsappMasked">
+                        <!-- Prefijo fijo +595 -->
+                        <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg">
+                            +595
+                        </span>
+                        <!-- Input solo para los 9 dígitos -->
+                        <input 
+                            type="tel"
+                            inputmode="numeric"
+                            x-model="formData.whatsapp"
+                            placeholder="981234567"
+                            minlength="9"
+                            maxlength="9"
+                            pattern="\d{9}"
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            :required="!whatsappMasked"
+                            :disabled="loading || whatsappMasked"
+                        >
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1" x-show="!whatsappMasked">Ingresá 9 dígitos (ej: 981234567)</p>
+                </div>
+                <!-- Hectáreas (label dinámico) -->
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        <span x-text="formData.cargo === 'productor' ? 'Hectáreas' : 'Hectáreas Atendidas'"></span>
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="number"       
+                        x-model="formData.hectareas"
+                        inputmode="decimal"
+                        placeholder="150"
+                        step="0.01"
+                        min="0.01"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required
+                        :disabled="loading"
+                    >
+                </div>
+                <!-- Botón Submit -->
+                <button 
+                    type="submit"
+                    :disabled="loading"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <span x-show="!loading">Registrar Asistencia</span>
+                    <span x-show="loading">Registrando...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function checkinForm() {
+            return {
+                // Datos de departamentos y distritos de Paraguay
+                distritosData: {
+                    "Alto Paraguay": ["Bahía Negra", "Capitán Carmelo Peralta", "Fuerte Olimpo", "Puerto Casado"],
+                    "Alto Paraná": ["Ciudad del Este", "Domingo Martínez de Irala", "Dr. Juan León Mallorquín", "Dr. Raúl Peña", "Hernandarias", "Iruña", "Itakyry", "Juan Emilio O'Leary", "Los Cedrales", "Mbaracayú", "Minga Guazú", "Minga Porá", "Naranjal", "Presidente Franco", "San Alberto", "San Cristóbal", "Santa Fe del Paraná", "Santa Rita", "Santa Rosa del Monday", "Tavapy", "Yguazu", "Ñacunday"],
+                    "Amambay": ["Bella Vista Norte", "Capitán Bado", "Karapai", "Pedro Juan Caballero", "Zanja Pytá"],
+                    "Asuncion": ["Asuncion"],
+                    "Boquerón": ["Filadelfia", "Loma plata", "Mariscal José Félix Estigarribia"],
+                    "Caaguazú": ["3 de Febrero", "Caaguazú", "Carayaó", "Coronel Oviedo", "Dr. Cecilio Báez", "Dr. Juan Eulogio Estigarribia", "Dr. Juan Manuel Frutos", "José Domingo Ocampos", "La Pastora", "Mcal. Francisco Solano López", "Nueva Londres", "R.I. 3 Corrales", "Raúl Arsenio Oviedo", "Repatriación", "San Joaquín", "San José de los Arroyos", "Santa Rosa del Mbutuy", "Simón Bolívar", "Tembiapora", "Vaquería", "Yhú"],
+                    "Caazapá": ["3 de Mayo", "Abaí", "Buena Vista", "Caazapá", "Gral. Higinio Moríñigo", "Maciel", "San Juan Nepomuceno", "Tavaí", "Yegros", "Yuty", "Ñumí"],
+                    "Canindeyú": ["Corpus Christi", "Curuguaty", "Francisco Caballero Álvarez", "General Francisco Álvarez", "Itanará", "Katueté", "La Paloma", "Nueva Esperanza", "Salto del Guairá", "Villa Curuguaty", "Villa Ygatimí", "Yasy Cañy", "Ypehú", "Ypejhú", "Ybyrarobana"],
+                    "Central": ["Areguá", "Capiatá", "Fernando de la Mora", "Guarambaré", "Itá", "Itauguá", "J. Augusto Saldívar", "Lambaré", "Limpio", "Luque", "Mariano Roque Alonso", "Nueva Italia", "San Antonio", "San Lorenzo", "Villa Elisa", "Villeta", "Ypane", "Ñemby"],
+                    "Concepción": ["Azotey", "Belén", "Concepción", "Horqueta", "Loreto", "Paso Barreto", "San Alfredo", "San Carlos", "San Lázaro", "Sargento José Félix López", "Yby Ya'Ú"],
+                    "Cordillera": ["Altos", "Arroyos y Esteros", "Atyrá", "Caacupé", "Caraguatay", "Emboscada", "Eusebio Ayala", "Isla Pucú", "Itacurubí de la Cordillera", "Juan de Mena", "Loma Grande", "Mbocayaty del Yhaguy", "Nueva Colombia", "Piribebuy", "Primero de Marzo", "San Bernardino", "San José Obrero", "Santa Elena", "Tobatí", "Valenzuela"],
+                    "Guairá": ["Borja", "Capitán Mauricio José Troche", "Coronel Martínez", "Dr. Bottrell", "Félix Pérez Cardozo", "Gral. Eugenio A. Garay", "Independencia", "Itapé", "Iturbe", "José Fassardi", "Mbocayaty", "Natalicio Talavera", "Ñumí", "Paso Yobái", "San Salvador", "Tebicuary", "Villarrica", "Yataity"],
+                    "Itapúa": ["Alto Verá", "Bella Vista", "Cambyretá", "Capitán Meza", "Capitán Miranda", "Carlos Antonio López", "Carmen del Paraná", "Coronel Bogado", "Edelira", "Encarnación", "Fram", "General Artigas", "General Delgado", "Hohenau", "Jesús", "La Paz", "Mayor Otaño", "Natalio", "Nueva Alborada", "Obligado", "Pirapó", "San Cosme y Damián", "San Juan del Paraná", "San Pedro del Paraná", "San Rafael del Paraná", "Tomás Romero Pereira", "Trinidad", "Yatytay"],
+                    "Misiones": ["Ayolas", "San Ignacio", "San Juan Bautista", "San Miguel", "San Patricio", "Santa María", "Santa Rosa", "Santiago", "Villa Florida", "Yabebyry"],
+                    "Ñeembucú": ["Alberdi", "Cerrito", "Desmochados", "General José Eduvigis Díaz", "Guazú Cuá", "Humaitá", "Isla Umbú", "Laureles", "Mayor José J. Martínez", "Paso de Patria", "Pilar", "San Juan Bautista de Ñeembucú", "Tacuaras", "Villa Franca", "Villa Oliva", "Villalbín"],
+                    "Paraguarí": ["Acahay", "Caapucú", "Caballero", "Carapeguá", "Escobar", "La Colmena", "Mbuyapey", "Paraguarí", "Pirayú", "Quiindy", "Quyquyhó", "Roque González de Santa Cruz", "Sapucai", "Tebicuarymí", "Yaguarón", "Ybycuí", "Ybytymí"],
+                    "Presidente Hayes": ["Benjamín Aceval", "Nanawa", "Puerto Pinasco", "Villa Hayes"],
+                    "San Pedro": ["25 de Diciembre", "Antequera", "Capiibary", "Choré", "General Elizardo Aquino", "General Francisco Isidoro Resquín", "Guayaibí", "Itacurubí del Rosario", "Lima", "Nueva Germania", "San Estanislao", "San Pablo", "San Pedro del Ycuamandiyú", "Santa Rosa del Aguaray", "Tacuatí", "Unión", "Villa del Rosario", "Yataity del Norte", "Yrybucuá"]
+                },
+                // Estado del formulario
+                formData: {
+                    cedula: '',
+                    nombre: '',
+                    apellido: '',
+                    cargo: '',
+                    empresa: '',
+                    email: '',
+                    departamento: '',
+                    distrito: '',
+                    whatsapp: '',
+                    hectareas: '',
+                    token: 'demo'
+                },
+                distritos: [],
+                esSyngenta365: false,
+                reglasAceptadas: false,
+                loading: false,
+                success: false,
+                error: false,
+                errorMessage: '',
+                rucEncontrado: false,
+                showSuccessMessage: false,
+                // Email/WhatsApp de un registro anterior: se muestran enmascarados
+                // y el server conserva el valor real si no se cambian (keep_*).
+                emailMasked: false,
+                emailMaskedValue: '',
+                whatsappMasked: false,
+                whatsappMaskedValue: '',
+
+                resetMasked() {
+                    this.emailMasked = false;
+                    this.emailMaskedValue = '';
+                    this.whatsappMasked = false;
+                    this.whatsappMaskedValue = '';
+                },
+
+                unmaskEmail() {
+                    this.emailMasked = false;
+                    this.formData.email = '';
+                },
+
+                unmaskWhatsapp() {
+                    this.whatsappMasked = false;
+                    this.formData.whatsapp = '';
+                },
+
+                clearPrefilled() {
+                    this.formData.nombre = '';
+                    this.formData.apellido = '';
+                    this.formData.email = '';
+                    this.formData.whatsapp = '';
+                    this.formData.cargo = '';
+                    this.formData.empresa = '';
+                    this.formData.departamento = '';
+                    this.formData.distrito = '';
+                    this.formData.hectareas = '';
+                },
+
+                // Autocompletar desde asistentes anteriores o, si no hay, desde el RUC.
+                // Un solo endpoint protegido con el token del QR (ver /api/attendee).
+                async autocomplete() {
+                    const hadPrefill = this.showSuccessMessage || this.emailMasked || this.whatsappMasked;
+                    this.showSuccessMessage = false;
+                    this.resetMasked();
+                    if (hadPrefill) {
+                        this.clearPrefilled();
+                    }
+
+                    // No buscar si la cédula es muy corta
+                    if (this.formData.cedula.length < 5) {
+                        this.rucEncontrado = false;
+                        return;
+                    }
+
+                    this.loading = true;
+
+                    try {
+                        const response = await fetch(
+                            `/api/attendee/${encodeURIComponent(this.formData.cedula)}` +
+                            `?event_token=${encodeURIComponent(this.formData.token)}`
+                        );
+
+                        // 403 (evento cerrado) o 429 (demasiadas consultas): se completa a mano.
+                        if (!response.ok) {
+                            this.rucEncontrado = false;
+                            return;
+                        }
+
+                        const result = await response.json();
+
+                        if (result.found && result.source === 'checkin') {
+                            const d = result.data;
+                            this.formData.nombre = d.nombre;
+                            this.formData.apellido = d.apellido;
+                            this.formData.cargo = d.cargo;
+                            this.formData.empresa = d.empresa;
+                            this.formData.departamento = d.departamento;
+                            this.distritos = this.distritosData[this.formData.departamento] || [];
+                            // Esperar a que se cargue el select antes de setear el distrito
+                            setTimeout(() => {
+                                this.formData.distrito = d.distrito;
+                            }, 50);
+                            this.formData.hectareas = d.hectareas;
+
+                            this.formData.email = '';
+                            this.formData.whatsapp = '';
+                            if (d.email_masked) {
+                                this.emailMasked = true;
+                                this.emailMaskedValue = d.email_masked;
+                            }
+                            if (d.whatsapp_masked) {
+                                this.whatsappMasked = true;
+                                this.whatsappMaskedValue = d.whatsapp_masked;
+                            }
+
+                            this.rucEncontrado = true;
+                            // El aviso queda visible hasta enviar o cambiar la cédula
+                            this.showSuccessMessage = true;
+
+                        } else if (result.found && result.source === 'ruc') {
+                            this.formData.nombre = result.data.nombre;
+                            this.formData.apellido = result.data.apellido;
+                            this.rucEncontrado = true;
+
+                        } else {
+                            this.rucEncontrado = false;
+                            this.clearPrefilled();
+                        }
+
+                    } catch (error) {
+                        console.error('Error en autocomplete:', error);
+                        this.rucEncontrado = false;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // Actualizar distritos cuando cambia departamento
+                updateDistritos() {
+                    this.formData.distrito = '';
+                    this.distritos = this.distritosData[this.formData.departamento] || [];
+                },
+
+                // Limpiar empresa si es productor
+                updateFieldsVisibility() {
+                    if (this.formData.cargo === 'productor') {
+                        this.formData.empresa = '';
+                    }
+                },
+
+                // Enviar formulario
+                async submitForm() {
+                    const form = this.$refs.checkinForm;
+                    
+                    // Validar formulario HTML5
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        setTimeout(() => {
+                            const firstInvalid = form.querySelector(':invalid');
+                            if (firstInvalid) {
+                                firstInvalid.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'center' 
+                                });
+                                firstInvalid.focus();
+                            }
+                        }, 100);
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.error = false;
+                    this.errorMessage = '';
+
+                    const dataToSend = {
+                        ...this.formData,
+                        // Formatear WhatsApp con prefijo
+                        whatsapp: this.whatsappMasked ? null : '+595' + this.formData.whatsapp,
+                        email: this.emailMasked ? null : (this.formData.email || null),
+                        keep_email: this.emailMasked,
+                        keep_whatsapp: this.whatsappMasked
+                    };
+
+                    try {
+                        const response = await fetch('/api/checkin', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(dataToSend)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            this.success = true;
+                            // Scroll al mensaje de éxito
+                            setTimeout(() => {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }, 100);
+                        } else {
+                            this.error = true;
+                            this.errorMessage = (typeof result.detail === 'string' && result.detail) || result.error || 'Error al registrar asistencia';
+                        }
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.error = true;
+                        this.errorMessage = 'Error de conexión. Por favor, intentá nuevamente.';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
